@@ -1,0 +1,2443 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>One-Voice SafeGuard Live v14.37</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest.json">
+
+<meta name="theme-color" content="#00519B">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+<link rel="icon" href="One Voice SafeGuard.png">
+<script>
+var firebaseAppLoaded = false, firebaseDbLoaded = false;
+function tryInitFirebase() {
+  if (firebaseAppLoaded && firebaseDbLoaded && typeof initFirebase === 'function') {
+    initFirebase();
+  }
+}
+function initMapsCallback() {
+  if (typeof initMaps === 'function') initMaps();
+}
+</script>
+
+<script async src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js" onload="firebaseAppLoaded=true;tryInitFirebase()"></script>
+<script async src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js" onload="firebaseDbLoaded=true;tryInitFirebase()"></script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBKRVIHqh9-sr__QNU3NXCAemsx6OvcFyc&callback=initMapsCallback&loading=async"></script>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{
+  --red:#8B1A1A; --red2:#A52020; --red3:#C0392B; --red-lt:#FDECEA; --red-icon:#E8D5D5;  
+  --green:#1A7A4A; --green2:#27AE60; --orange:#E67E22; --blue:#1D4ED8; --blue-lt:#EFF6FF;
+  --bg:#F5F0EE; --bg2:#EDE8E5; --card:#FFFFFF; --border:#E2DAD6;    
+  --txt:#1A0A0A; --txt2:#5C4A4A; --txt3:#9E8A8A;      
+  --r:16px; --rs:12px;
+  --sh:0 2px 12px rgba(139,26,26,.08); --shl:0 8px 32px rgba(139,26,26,.14);
+  --ov-blue:#00519B; --ov-blue-dark:#003F7A; --ov-orange:#E67E22;
+}
+html,body{height:100%;overflow:hidden;background:#2A0808;font-family:'Sarabun',sans-serif;}
+.shell{width:100%;max-width:400px;height:100%;max-height:812px;margin:0 auto;position:relative;overflow:hidden;background:var(--ov-blue-dark);display:flex;flex-direction:column;}
+@media(min-height:820px){
+  body{display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 30% 40%,#5C1A1A,#2A0808);}
+  .shell{border-radius:44px;height:812px;box-shadow:0 40px 100px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.08);}
+}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--bg);transition:transform .32s cubic-bezier(.4,0,.2,1),opacity .32s;z-index:5;}
+.screen.hidden{transform:translateX(100%);opacity:0;pointer-events:none;}
+.screen.left{transform:translateX(-25%);opacity:0;pointer-events:none;}
+
+.sb{background:var(--bg);padding:10px 20px 6px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
+.sb-t{font-size:13px;font-weight:700;color:var(--txt);}
+.sb-i{display:flex;gap:5px;font-size:12px;color:var(--txt2);}
+
+.tnav{background:var(--card);padding:10px 16px 14px;display:flex;align-items:center;gap:10px;flex-shrink:0;position:relative;border-bottom:1px solid var(--border);}
+.tbk{width:32px;height:32px;border-radius:50%;background:var(--red-icon);border:none;cursor:pointer;color:var(--red);font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ttl{flex:1;}
+.ttl h2{font-size:16px;font-weight:700;color:var(--txt);line-height:1.2;}
+.ttl p{font-size:11px;color:var(--txt3);margin-top:1px;}
+.tbadge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;}
+.b-live{background:#D1FAE5;color:#065F46;animation:badge-pulse 2s infinite;}
+.b-sos{background:var(--red3);color:#fff;animation:badge-pulse .8s infinite;}
+@keyframes badge-pulse{0%,100%{opacity:1;}50%{opacity:.6;}}
+
+.sbody{flex:1;overflow-y:auto;display:flex;flex-direction:column;padding-bottom:24px;}
+.sbody::-webkit-scrollbar{width:3px;}
+.sbody::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+
+.bnav{background:var(--card);border-top:1px solid var(--border);display:flex;padding:8px 0 16px;flex-shrink:0;}
+.bni{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:4px 0;transition:transform .15s;position:relative;}
+.bni .bi{font-size:22px;color:var(--txt3);}
+.bni .bl{font-size:10px;color:var(--txt3);}
+.bni.on .bi{color:var(--ov-blue);}
+.bni.on .bl{color:var(--ov-blue);font-weight:700;}
+.bni.on{background:var(--blue-lt);border-radius:12px;margin:0 4px;}
+.bnd{width:4px;height:4px;border-radius:50%;background:var(--ov-blue);margin-top:-2px;}
+
+.role-cards{display:flex;flex-direction:column;gap:10px;width:100%;}
+.role-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all .2s;box-shadow:var(--sh);}
+.role-card:active{transform:scale(.98);}
+.role-card.hl{border-color:var(--ov-blue);background:#F0F7FF;}
+.rc-icon-wrap{width:44px;height:44px;border-radius:12px;background:#D1E9FF;color:var(--ov-blue);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.rc-text h3{font-size:14px;font-weight:700;color:var(--txt);}
+.rc-text p{font-size:11px;color:var(--txt3);margin-top:2px;}
+.rc-arrow{margin-left:auto;color:var(--ov-blue);font-size:18px;}
+
+.ov-logo-header { width: auto; height: 60px; object-fit: contain; display: block; }
+.conn-status { display:flex; align-items:center; gap:8px; justify-content:center; margin-top:12px; padding:8px 12px; border-radius:12px; background:rgba(255,255,255,0.7); border:1px solid var(--border); }
+.conn-dotConnecting { background: #9E8A8A; }
+.conn-dotConnected { background: #10B981; }
+
+.urg-alert-title { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+.v-banner{margin:12px 16px 0;border-radius:var(--r);padding:14px 16px;display:flex;align-items:center;gap:12px;}
+.vb-safe{background:#D1FAE5;border:1px solid #A7F3D0;}
+.vb-sos{background:var(--red-lt);border:1px solid #FECACA;animation:badge-pulse 1.5s infinite;}
+.vb-icon{font-size:26px;flex-shrink:0;}
+.vb-text h3{font-size:13px;font-weight:700;color:var(--txt);}
+.vb-text p{font-size:11px;color:var(--txt2);margin-top:2px;}
+
+.gps-strip{margin:10px 16px 0;background:var(--card);border-radius:var(--rs);padding:11px 14px;display:flex;align-items:center;gap:10px;box-shadow:var(--sh);border:1px solid var(--border);}
+.gps-dot{width:9px;height:9px;border-radius:50%;background:#9E8A8A;animation:blink 1.5s infinite;flex-shrink:0;}
+.gps-dot.live{background:#10B981;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.4;}}
+.gps-info {flex:1;}
+.gps-info h4{font-size:12px;font-weight:600;color:var(--txt);}
+.gps-info p{font-size:10px;color:var(--txt3);margin-top:1px;}
+
+.sos-area{padding:16px;display:flex;flex-direction:column;align-items:center;gap:12px;}
+.sos-ring{width:150px;height:150px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;}
+.sos-ring::before{content:'';position:absolute;border-radius:50%;animation:sos-p 2.2s ease-out infinite;inset:-8px;background:rgba(139,26,26,.15);}
+@keyframes sos-p{0%{transform:scale(.95);opacity:.7;}70%{transform:scale(1.06);opacity:0;}100%{transform:scale(1.06);opacity:0;}}
+.sos-btn{width:134px;height:134px;border-radius:50%;background:linear-gradient(145deg,var(--red2),var(--red));border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(139,26,26,.35);}
+.sos-icon{font-size:32px;}
+.sos-lbl{font-size:18px;font-weight:800;color:#fff;letter-spacing:1px;}
+.sos-sub{font-size:9px;color:rgba(255,255,255,.75);margin-top:1px;}
+
+.sent-card{display:none;margin:10px 16px 0;border-radius:var(--r);padding:14px;background:var(--blue-lt);border:1px solid #BFDBFE;flex-direction:column;align-items:center;gap:8px;}
+.qgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px;}
+.qbtn{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:12px;cursor:pointer;display:flex;flex-direction:column;gap:6px;box-shadow:var(--sh);text-align:left;}
+.qbtn-full{grid-column: span 2; flex-direction: row !important; align-items: center; border: 1.5px solid #FCA5A5;}
+.q-icon-wrap{width:36px;height:36px;border-radius:10px;background:var(--red-icon);display:flex;align-items:center;justify-content:center;font-size:18px;}
+.ql{font-size:12px;font-weight:700;color:var(--txt);}
+.qs{font-size:10px;color:var(--txt3);}
+
+.chat-body{flex:1;padding:12px 16px;display:flex;flex-direction:column;gap:12px;overflow-y:auto;background:var(--bg);}
+.bwrap{display:flex;flex-direction:column;margin-bottom:4px;}
+.bwrap.right{align-items:flex-end;}
+.bwrap.center{align-items:center;}
+.bubble{max-width:80%;padding:10px 14px;border-radius:16px;font-size:13px;line-height:1.5;}
+.bubble.sys{background:var(--border);color:var(--txt2);font-size:11px;border-radius:20px;padding:4px 12px;text-align:center;}
+.bubble.off{background:var(--card);color:var(--txt);border:1px solid var(--border);border-bottom-left-radius:4px;}
+.bubble.usr{background:var(--red);color:#fff;box-shadow:var(--sh);border-bottom-right-radius:4px;}
+.bt{font-size:9px;color:var(--txt3);margin-top:3px;}
+.chat-inp-bar{background:var(--card);border-top:1px solid var(--border);padding:10px 16px;display:flex;gap:10px;align-items:center;flex-shrink:0;}
+.chat-inp{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:22px;padding:10px 16px;font-size:13px;outline:none;}
+.chat-send{width:36px;height:36px;border-radius:50%;background:var(--ov-blue);border:none;color:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+
+.stat-row{display:flex;gap:8px;padding:12px 16px 4px;}
+.stat-box{flex:1;background:var(--card);border:1px solid var(--border);border-radius:var(--rs);padding:10px;text-align:center;box-shadow:var(--sh);cursor:pointer;transition:transform 0.2s;}
+.stat-box:active{transform:scale(0.96);}
+.stat-n{font-size:20px;font-weight:800;color:var(--ov-blue);}
+.stat-l{font-size:10px;color:var(--txt3);margin-top:2px;}
+
+.alert-card{margin:12px 16px;background:var(--card);border-radius:var(--r);box-shadow:var(--shl);border:2px solid var(--red3);overflow:hidden; position:relative; z-index:50;}
+.alert-card.active{animation:shake 0.5s;}
+@keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-4px);} 75%{transform:translateX(4px);} }
+.alert-hd{background:linear-gradient(135deg,var(--ov-blue),var(--ov-blue-dark));padding:12px 16px;color:#fff;}
+.alert-hd h3{font-size:14px;font-weight:700;}
+.alert-hd p{font-size:11px;opacity:0.8;margin-top:2px;}
+.alert-body{padding:12px 16px;}
+.arow{display:flex;align-items:flex-start;gap:10px;padding:6px 0;border-bottom:1px solid var(--border);}
+.ar-info h4{font-size:12px;font-weight:600;}
+.ar-info p{font-size:11px;color:var(--txt2);margin-top:2px;}
+.alert-acts{display:flex;gap:8px;padding:12px 16px;background:#FAF6F5;border-top:1px solid var(--border);}
+.aact{flex:1;padding:11px 8px;border-radius:var(--rs);border:none;cursor:pointer;font-weight:700;font-size:12px;text-align:center;display:inline-block;}
+.aact.primary{background:var(--ov-blue);color:#fff;}
+.aact.danger{background:var(--red3);color:#fff;}
+.aact:disabled{opacity:0.5; cursor:not-allowed;}
+
+.mbtn{width:100%;padding:12px;border-radius:var(--rs);font-weight:700;font-size:13px;border:none;cursor:pointer;margin-bottom:8px;text-align:center;display:block; transition:all 0.2s;}
+.mbtn.red{background:var(--ov-orange);color:#fff;}
+.mbtn.navy{background:var(--ov-blue);color:#fff;}
+.mbtn.green{background:var(--green);color:#fff;}
+.mbtn.ghost{background:transparent;border:1px solid var(--border);color:var(--txt2);}
+.mbtn:disabled{opacity:0.5; cursor:not-allowed;}
+
+.tl{padding:0 16px 16px;}
+.tl-item{display:flex;gap:12px;padding-bottom:12px;position:relative;}
+.tl-item:not(:last-child)::before{content:'';position:absolute;left:14px;top:28px;bottom:0;width:2px;background:var(--border);}
+.tl-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;z-index:1;}
+.tl-b{flex:1;}
+.tl-t{font-size:12px;font-weight:700;color:var(--txt);}
+.tl-d{font-size:11px;color:var(--txt2);margin-top:2px;}
+.tl-ts{font-size:10px;color:var(--txt3);margin-top:2px;}
+
+.modal-ov{position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;z-index:300;opacity:0;pointer-events:none;transition:opacity .25s;}
+.modal-ov.show{opacity:1;pointer-events:all;}
+.modal-sheet{background:var(--bg);border-radius:24px 24px 0 0;padding:20px 20px 32px;width:100%;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1); max-height:90vh; display:flex; flex-direction:column;}
+.modal-ov.show .modal-sheet{transform:translateY(0);}
+.mhandle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px; flex-shrink:0;}
+.mttl{font-size:16px;font-weight:700;margin-bottom:4px; flex-shrink:0;}
+.msub{font-size:12px;color:var(--txt2);line-height:1.5;margin-bottom:12px; flex-shrink:0;}
+
+#stealth-record-modal{background:#000;align-items:center;justify-content:center;z-index:9999;}
+#stealth-ui{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:15vh;color:#444;}
+.toast{position:absolute;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(26,10,10,.9);color:#fff;padding:8px 18px;border-radius:20px;font-size:12px;white-space:nowrap;z-index:600;opacity:0;transition:opacity .3s;pointer-events:none;}
+.toast.show{opacity:1;}
+.form-section { background: #fff; padding: 12px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 12px; }
+.form-lbl { font-size: 11px; font-weight: 700; color: var(--ov-blue); margin-bottom: 6px; display: block; border-bottom:1px solid var(--bg2); padding-bottom:4px;}
+.form-inp { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 12px; margin-bottom: 8px; background: var(--bg); outline:none; }
+
+.sos-tag { display:inline-block; padding:4px 10px; margin:4px 2px; border-radius:12px; font-size:11px; cursor:pointer; border:1px solid transparent; transition:all 0.2s; user-select:none;}
+.sos-tag.t-red { background:#FEE2E2; color:#991B1B; border-color:#FCA5A5; }
+.sos-tag.t-red.selected { background:#EF4444; color:#fff; border-color:#EF4444; }
+.sos-tag.t-yel { background:#FEF3C7; color:#92400E; border-color:#FCD34D; }
+.sos-tag.t-yel.selected { background:#F59E0B; color:#fff; border-color:#F59E0B; }
+.sos-tag.t-grn { background:#D1FAE5; color:#065F46; border-color:#6EE7B7; }
+.sos-tag.t-grn.selected { background:#10B981; color:#fff; border-color:#10B981; }
+
+.map-legend-box { position:absolute; bottom:16px; left:16px; background:white; padding:10px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.2); z-index:10; font-size:10px; pointer-events:none; border:1px solid var(--border); }
+.ml-row { display:flex; align-items:center; gap:6px; margin-top:4px; }
+.ml-color { width:10px; height:10px; border-radius:50%; }
+
+.unit-status-row { display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:#F9FAFB; border:1px solid var(--border); border-radius:8px; margin-bottom:6px; font-size:12px; }
+.unit-status-row.busy { background:#FEF2F2; border-color:#FECACA; }
+.unit-badge { font-weight:800; color:#fff; padding:4px 8px; border-radius:6px; }
+.ub-idle { background:var(--green); }
+.ub-busy { background:var(--red3); }
+
+/* Fix for google maps label scaling */
+.gm-style-label { font-family:'Sarabun', sans-serif !important; }
+</style>
+</head>
+<body>
+<div class="shell" id="shell">
+
+<!-- SCREEN 1: ROLE SELECT -->
+<div class="screen" id="s-role-select">
+  <div style="position:absolute; top:16px; right:16px; z-index:100;">
+    <button onclick="doLocalReset()" style="background:rgba(255,255,255,0.8); border:1px solid var(--border); color:var(--ov-orange); padding:6px 12px; border-radius:16px; font-size:11px; font-weight:700; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.15);">
+      🔄 รีเซ็ต Demo หลัก
+    </button>
+  </div>
+  <div style="background:var(--bg);padding:50px 24px 20px;display:flex;flex-direction:column;align-items:center;gap:10px;border-bottom:1px solid var(--border);">
+    <img src="One Voice SafeGuard.png" alt="One-Voice SafeGuard Logo" class="ov-logo-header" onerror="this.src='https://via.placeholder.com/150x60?text=OneVoice+Logo'">
+    <div style="text-align:center;">
+      <h1 style="font-size:22px;font-weight:800;color:var(--ov-blue);">One-Voice SafeGuard</h1>
+      <p style="font-size:12px;color:var(--txt3);margin-top:-2px;">ระบบรับแจ้งเหตุและป้องกันความรุนแรงภายในครอบครัว (สน.ดอนเมือง)</p>
+    </div>
+  </div>
+  <div style="flex:1;background:var(--card);border-radius:24px 24px 0 0;padding:24px;box-shadow:0 -4px 24px rgba(0,81,155,.05);overflow-y:auto;">
+    <div style="font-size:16px;font-weight:700;color:var(--txt);margin-bottom:16px;">เข้าสู่ระบบ</div>
+    <div class="role-cards">
+      <div class="role-card hl" onclick="selectRole('victim')">
+        <div class="rc-icon-wrap">👩</div>
+        <div class="rc-text"><h3>ประชาชน / ผู้เสียหาย</h3><p>แจ้งเหตุฉุกเฉิน ติดตามการทำงาน</p></div>
+        <span class="rc-arrow">›</span>
+      </div>
+      <div class="role-card" onclick="selectRole('command')">
+        <div class="rc-icon-wrap" style="background:#E0E7FF;color:#3730A3;">🏢</div>
+        <div class="rc-text"><h3>ศูนย์ติดตาม One-Voice SafeGuard</h3><p>บริหารสั่งการ ภาพรวมเคสและพิกัดกำลังพล</p></div>
+        <span class="rc-arrow">›</span>
+      </div>
+      <div class="role-card" onclick="selectRole('patrol')">
+        <div class="rc-icon-wrap" style="background:#D1FAE5;color:#065F46;">🚔</div>
+        <div class="rc-text"><h3>เจ้าหน้าที่สายตรวจ (หน้างาน)</h3><p>รับมอบหมายภารกิจ นำทางระบุพิกัด และรายงานผล</p></div>
+        <span class="rc-arrow">›</span>
+      </div>
+    </div>
+    <div class="conn-status" style="justify-content:center;margin-top:20px;">
+      <div class="conn-dotConnecting" id="conn-dot" style="width:8px; height:8px; border-radius:50%; margin-right:8px;"></div>
+      <span id="conn-text" style="font-size:11px;">กำลังเชื่อมต่อระบบ...</span>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 2: ThaiD LOGIN & SIMULATION FORM -->
+<div class="screen hidden" id="s-thaid">
+  <div style="background:var(--bg);padding:10px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border); flex-shrink:0;">
+    <button onclick="goScreen('s-role-select')" class="tbk">‹</button>
+    <img src="One Voice SafeGuard.png" alt="Logo" style="height:30px; width:auto; object-fit:contain;" onerror="this.style.display='none'">
+    <span id="login-screen-title" style="font-size:15px;font-weight:700;color:var(--txt);">เข้าสู่ระบบ</span>
+  </div>
+  
+  <!-- CONSENT SCREEN CONTENT (Shown only for Victim initially) -->
+  <div id="thaid-consent-content" style="display:none; flex:1; flex-direction:column; padding:16px; overflow-y:auto; background:var(--bg);">
+    <div style="background:white; border:1px solid var(--border); border-radius:12px; padding:16px; box-shadow:var(--sh);">
+        <h3 style="font-size:15px; font-weight:800; color:var(--ov-blue); text-align:center; margin-bottom:12px;">ข้อตกลงและเงื่อนไขการให้ความยินยอม</h3>
+        <p style="font-size:11px; color:var(--txt3); text-align:center; margin-bottom:16px;">เพื่อความปลอดภัยและประสิทธิภาพสูงสุดในการให้ความช่วยเหลือ โปรดอ่านและทำความเข้าใจข้อตกลงต่อไปนี้:</p>
+        
+        <p style="font-size:12px; color:var(--txt2); margin-bottom:12px; line-height:1.5;"><strong>1. การแจ้งเหตุตามความเป็นจริง:</strong> ข้าพเจ้ารับทราบว่าการเจตนาแจ้งเหตุอันเป็นเท็จต่อเจ้าพนักงาน ถือเป็นการกระทำความผิดตามกฎหมาย ระบบนี้มีไว้เพื่อแจ้งเหตุฉุกเฉินบนพื้นฐานของเหตุการณ์ที่เกิดขึ้นจริงเท่านั้น</p>
+        <p style="font-size:12px; color:var(--txt2); margin-bottom:12px; line-height:1.5;"><strong>2. การคุ้มครองข้อมูลส่วนบุคคล (PDPA):</strong> ข้อมูลส่วนตัว พิกัดสถานที่ และพยานหลักฐานของท่าน จะถูกจัดเก็บรวบรวมอย่างปลอดภัยขั้นสูงสุดในฐานข้อมูลของสำนักงานตำรวจแห่งชาติ โดยเป็นไปตามพระราชบัญญัติคุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562</p>
+        <p style="font-size:12px; color:var(--txt2); margin-bottom:12px; line-height:1.5;"><strong>3. การยินยอมให้บูรณาการและส่งต่อข้อมูล:</strong> ข้าพเจ้ายินยอมให้สำนักงานตำรวจแห่งชาติ เปิดเผยและส่งต่อข้อมูลส่วนบุคคลและประวัติคดีของข้าพเจ้า ให้แก่หน่วยงานในสังกัด <strong>"กระทรวงการพัฒนาสังคมและความมั่นคงของมนุษย์ (พม.)"</strong> หรือหน่วยงานที่เกี่ยวข้อง เพื่อประโยชน์ในการคุ้มครองสวัสดิภาพและฟื้นฟูเยียวยาอย่างต่อเนื่อง</p>
+        
+        <label style="display:flex; align-items:flex-start; gap:10px; margin-top:16px; padding:12px; background:#F0FDF4; border:1px solid #A7F3D0; border-radius:8px; cursor:pointer;">
+            <input type="checkbox" id="consent-checkbox" style="margin-top:3px; transform:scale(1.2);" onchange="document.getElementById('btn-accept-consent').disabled = !this.checked; document.getElementById('btn-accept-consent').style.opacity = this.checked ? '1' : '0.5';">
+            <span style="font-size:12px; font-weight:700; color:var(--green); line-height:1.4;">ข้าพเจ้าได้อ่านและทำความเข้าใจข้อตกลงทั้งหมด และให้ความยินยอมตามเงื่อนไขดังกล่าว</span>
+        </label>
+    </div>
+    <button id="btn-accept-consent" disabled onclick="acceptConsent()" style="width:100%; padding:14px; background:var(--ov-blue); color:#fff; border:none; border-radius:12px; font-size:14px; font-weight:700; cursor:pointer; box-shadow:0 4px 12px rgba(0,81,155,0.2); margin-top:16px; opacity:0.5; transition:all 0.2s; flex-shrink:0;">ยอมรับและดำเนินการต่อ</button>
+  </div>
+
+  <!-- MAIN THAID CONTENT -->
+  <div id="thaid-main-content" style="flex:1;padding:16px;display:block;flex-direction:column;overflow-y:auto;">
+    <div id="role-indicator" style="text-align:center;font-size:12px;font-weight:700;padding:10px;border-radius:10px;margin-bottom:12px;border:1px solid #E2DAD6;"></div>
+    
+    <div id="victim-simulation-notice" style="display:none; background:#EFF6FF; border:1px solid #BFDBFE; border-radius:12px; padding:12px; margin-bottom:12px; font-size:11px; color:#1E40AF; line-height:1.5;">
+        💡 <strong>หมายเหตุสำหรับการนำเสนอข้อมูล (Demo):</strong><br>
+        ในการใช้งานจริง ระบบจะดึงข้อมูลจากฐานข้อมูลทะเบียนราษฎร์ **ThaiD** อัตโนมัติทันทีที่ยืนยันตัวตนสำเร็จ แต่เนื่องจากนี่เป็นแอปพลิเคชันจำลอง ท่านสามารถกรอกข้อมูลผู้เสียหายเพื่อทดสอบระบบได้ที่นี่:
+    </div>
+
+    <div id="victim-input-fields" style="display:none; margin-bottom:12px;">
+        <div class="form-section" style="box-shadow:var(--sh);">
+            <span class="form-lbl">👩 ข้อมูลผู้เสียหาย (จำลองระบบเชื่อมโยง ThaiD)</span>
+            <div style="display:flex; gap:8px;">
+                <input type="text" class="form-inp" id="td_v_fname" placeholder="ชื่อ" value="กนกวรรณ">
+                <input type="text" class="form-inp" id="td_v_lname" placeholder="นามสกุล" value="มั่นคง">
+            </div>
+            <div style="display:flex; gap:8px;">
+                <input type="number" class="form-inp" id="td_v_age" placeholder="อายุ" style="flex:1;" value="32">
+                <input type="text" class="form-inp" id="td_v_id" placeholder="เลขบัตรประชาชน (13 หลัก)" style="flex:3;" value="1100200345678">
+            </div>
+            <textarea class="form-inp" id="td_v_address" placeholder="ที่อยู่ปัจจุบัน..." style="height:50px;">45/1 ม.ดอนเมืองธานี ถ.เดชะตุงคะ แขวงดอนเมือง เขตดอนเมือง กรุงเทพฯ</textarea>
+            
+            <!-- เมนูลัด (Shortcut Menu) สำหรับเปลี่ยนเคสจำลอง -->
+            <div style="margin-top:8px; border-top:1px dashed var(--border); padding-top:8px;">
+                <span class="form-lbl" style="font-size:11px; margin-bottom:4px;">⬇️ เมนูลัด: เลือกผู้เสียหายจำลองเพื่อทดสอบระบบ</span>
+                <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                    <button onclick="setVictimShortcut('กนกวรรณ', 'มั่นคง', '32', '1100200345678', '45/1 ม.ดอนเมืองธานี ถ.เดชะตุงคะ แขวงดอนเมือง เขตดอนเมือง กรุงเทพฯ')" style="background:#F3F4F6; border:1px solid #D1D5DB; padding:4px 8px; border-radius:4px; font-size:10px; cursor:pointer;">👩 กนกวรรณ (เดชะตุงคะ)</button>
+                    <button onclick="setVictimShortcut('สมศรี', 'ใจดี', '45', '3100500123456', 'ซอยวิภาวดีรังสิต 33 แขวงสนามบิน เขตดอนเมือง กรุงเทพฯ')" style="background:#F3F4F6; border:1px solid #D1D5DB; padding:4px 8px; border-radius:4px; font-size:10px; cursor:pointer;">👱‍♀️ สมศรี (วิภาวดี 33)</button>
+                    <button onclick="setVictimShortcut('ปราณี', 'แสงทอง', '28', '2100400876543', 'หมู่บ้านปิ่นเจริญ 2 ถนนสรงประภา แขวงสีกัน เขตดอนเมือง')" style="background:#F3F4F6; border:1px solid #D1D5DB; padding:4px 8px; border-radius:4px; font-size:10px; cursor:pointer;">👧 ปราณี (สรงประภา)</button>
+                    <button onclick="setVictimShortcut('พอใจ', 'เข้มแข็ง', '32', '1111177777222', '75/196 ถ.ช่างอากาศอุทิศ แขวงสีกัน เขตดอนเมือง กรุงเทพ')" style="background:#F3F4F6; border:1px solid #D1D5DB; padding:4px 8px; border-radius:4px; font-size:10px; cursor:pointer;">👩 พอใจ (ช่างอากาศอุทิศ)</button>
+                </div>
+            </div>
+            
+            <div style="display:flex; gap:6px; justify-content:flex-end; margin-top:2px;">
+                <button type="button" onclick="quickFillVictim('สมศรี รักสงบ', '25', '3100200998877', '12/3 แขวงสนามบิน เขตดอนเมือง')" style="font-size:10px; background:#EDE8E5; border:none; padding:4px 8px; border-radius:6px; cursor:pointer;">⚡ เคสสมศรี (สนามบิน)</button>
+                <button type="button" onclick="quickFillVictim('สุดาพร ใจดี', '41', '5100400112233', '99 ม.ดอนเมืองวิลล์ ถ.วิภาวดีรังสิต เขตดอนเมือง')" style="font-size:10px; background:#EDE8E5; border:none; padding:4px 8px; border-radius:6px; cursor:pointer;">⚡ เคสสุดาพร (วิภาวดี)</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="thaid-standard-logo" style="background:linear-gradient(135deg,#00519B,#003F7A);border-radius:20px;padding:24px;text-align:center;margin-bottom:20px;color:white; border:2px solid #fff;">
+      <div style="font-size:40px;margin-bottom:4px;">🪪</div>
+      <div style="font-size:18px;font-weight:800;">ThaiD</div>
+      <div style="font-size:11px;opacity:0.8;">ระบบพิสูจน์และยืนยันตัวตนทางดิจิทัล</div>
+    </div>
+    
+    <button onclick="doThaiDLogin()" style="width:100%;padding:14px;background:#00519B;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(0,81,155,0.2);">
+      🔒 ยืนยันตัวตนผ่านแอปพลิเคชัน ThaiD
+    </button>
+  </div>
+</div>
+
+<!-- SCREEN 3: VICTIM MAIN -->
+<div class="screen hidden" id="s-victim">
+  <div class="sb"><span class="sb-t" id="v-clk">10:57</span><div class="sb-i"><span>📶 5G</span><span>🔋 98%</span></div></div>
+  <div class="tnav" style="border-bottom:2px solid var(--ov-blue);">
+    <button class="tbk" onclick="doLogout()">‹</button>
+    <img src="One Voice SafeGuard.png" alt="Logo" style="height:32px; width:auto; object-fit:contain;" onerror="this.style.display='none'">
+    <div class="ttl"><h2>One-Voice SafeGuard</h2><p id="v-nav-sub">สน.ดอนเมือง · ผู้เสียหาย: กนกวรรณ</p></div>
+    <span class="tbadge b-live" id="v-badge" style="position:absolute; right:16px; top:42px;">● เฝ้าระวังสด</span>
+  </div>
+  <div class="sbody">
+    <div class="v-banner vb-safe" id="v-banner">
+      <span class="vb-icon">🛡️</span>
+      <div class="vb-text"><h3 id="v-banner-title">ระบบพิทักษ์ความปลอดภัยเปิดอยู่</h3><p id="v-banner-sub">ศูนย์ควบคุมและกำลังพลสายตรวจแสตนด์บายตลอด 24 ชม.</p></div>
+    </div>
+    
+    <div style="margin:10px 16px 0;">
+      <div class="gps-strip">
+        <div class="gps-dot live" id="gps-dot-v"></div>
+        <div class="gps-info">
+          <h4>📍 สถานะตำแหน่ง: <span id="gps-status-v" style="color:var(--green);">ปกติ</span></h4>
+          <p id="gps-coords-v">13.91800, 100.60500 (ดึงพิกัดตามที่อยู่แล้ว)</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="sos-area">
+      <div class="sos-ring" id="sos-ring" onclick="showModal('sos-modal')">
+        <button class="sos-btn">
+          <span class="sos-icon">🆘</span>
+          <span class="sos-lbl">SOS</span>
+          <span class="sos-sub">กดเพื่อขอความช่วยเหลือด่วน</span>
+        </button>
+      </div>
+    </div>
+    
+    <div class="sent-card" id="sent-card">
+      <span style="font-size:28px;">🚔</span>
+      <div style="text-align:center;margin-top:4px;">
+        <div style="font-size:14px;font-weight:700;color:var(--ov-blue);" id="patrol-title-v">สายตรวจกำลังระดมกำลังพลเดินทาง</div>
+        <div style="font-size:11px;color:var(--txt2);margin-top:2px;line-height:1.4;" id="patrol-desc-v">ได้รับคำสั่งจากศูนย์ควบคุมแล้ว กรุณาอยู่ในพิกัดที่ปลอดภัยและเปิดสัญญาณแอปพลิเคชันไว้</div>
+      </div>
+    </div>
+    
+    <div style="display:flex;align-items:center;gap:10px;padding:12px 16px 6px;">
+      <div style="width:4px;height:16px;background:var(--ov-blue);border-radius:2px;"></div>
+      <span style="font-size:14px;font-weight:700;color:var(--ov-blue);">ฟังก์ชันการช่วยเหลือฉุกเฉินและบันทึกข้อมูล</span>
+    </div>
+    
+    <div class="qgrid">
+      <button class="qbtn" onclick="openVictimMapTab()">
+        <div class="q-icon-wrap" style="background:#D1E9FF; color:var(--ov-blue);">🗺️</div><span class="ql">แผนที่พิกัดสด</span><span class="qs">ดูตำแหน่งตนเองและรถสายตรวจ</span>
+      </button>
+      <button class="qbtn" onclick="goScreen('s-vchat')">
+        <div class="q-icon-wrap" style="background:#D1E9FF; color:var(--ov-blue);">💬</div><span class="ql">แชทฉุกเฉิน</span><span class="qs">ขอคำปรึกษาศูนย์ควบคุม</span>
+      </button>
+      <button class="qbtn qbtn-full" onclick="startStealthRecord()">
+        <div class="q-icon-wrap" style="background:#FEE2E2; color:#991B1B;">🎥</div>
+        <div style="display:flex; flex-direction:column; gap:1px; padding-left:4px;">
+          <span class="ql" style="color:#991B1B;">บันทึกวิดีโอ/เสียง (โหมดซ่อนตัว)</span>
+          <span class="qs">หน้าจอจะดับสนิทพรางตาผู้กระทำ ข้อมูลอัปโหลดขึ้น Cloud ทันที</span>
+        </div>
+      </button>
+      <button class="qbtn" onclick="showModal('contacts-modal')">
+        <div class="q-icon-wrap" style="background:#D1E9FF; color:var(--ov-blue);">📞</div><span class="ql">ผู้ติดต่อฉุกเฉิน</span><span class="qs">เบอร์สายด่วน พม. และสถานีตำรวจ</span>
+      </button>
+      <button class="qbtn" onclick="showModal('record-modal')">
+        <div class="q-icon-wrap" style="background:#D1E9FF; color:var(--ov-blue);">📝</div><span class="ql">บันทึกข้อความเสริม</span><span class="qs">ส่งข้อมูลแวดล้อมเพิ่มเติมให้ศูนย์</span>
+      </button>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:10px;padding:16px 16px 6px;">
+      <div style="width:4px;height:16px;background:var(--ov-blue);border-radius:2px;"></div>
+      <span style="font-size:14px;font-weight:700;color:var(--ov-blue);">บันทึกไทม์ไลน์เหตุการณ์ล่าสุด (เรียลไทม์)</span>
+    </div>
+    <div class="tl" id="victim-timeline"></div>
+  </div>
+  <div class="bnav">
+    <div class="bni on" onclick="bTab(this);goScreen('s-victim')"><span class="bi">🛡️</span><span class="bl">ความปลอดภัย</span><div class="bnd"></div></div>
+    <div class="bni" onclick="bTab(this);goScreen('s-vrecords')"><span class="bi">📂</span><span class="bl">บันทึกของฉัน</span></div>
+    <div class="bni" onclick="bTab(this);goScreen('s-vchat')"><span class="bi">💬</span><span class="bl">ศูนย์แชท</span></div>
+    <div class="bni" onclick="doLogout()"><span class="bi">🚪</span><span class="bl">ออกระบบ</span></div>
+  </div>
+</div>
+
+<!-- SCREEN 3.5: VICTIM RECORDS (บันทึกของฉัน) -->
+<div class="screen hidden" id="s-vrecords">
+  <div class="sb"><span class="sb-t" id="vr-clk">10:57</span><div class="sb-i"><span>📶 5G</span><span>🔋 98%</span></div></div>
+  <div class="tnav" style="border-bottom:2px solid var(--ov-blue);">
+    <button class="tbk" onclick="goScreen('s-victim')">‹</button>
+    <img src="One Voice SafeGuard.png" alt="Logo" style="height:32px; width:auto; object-fit:contain;" onerror="this.style.display='none'">
+    <div class="ttl"><h2>บันทึกข้อมูลของฉัน</h2><p>ประวัติและความคุ้มครองส่วนบุคคล</p></div>
+  </div>
+  <div class="sbody" style="padding:16px;">
+    <div style="background:#ECFDF5; border:1px solid #A7F3D0; padding:14px; border-radius:12px; margin-bottom:16px; text-align:center;">
+        <span style="font-size:24px;">🔒</span>
+        <p style="font-size:11px; color:#065F46; font-weight:600; margin-top:6px; line-height:1.4;">
+            "ข้อมูลนี้ถูกเก็บไว้อย่างปลอดภัย มีเพียงคุณและเจ้าหน้าที่ที่ไว้วางใจเท่านั้นที่เข้าถึงได้"
+        </p>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+      <div style="width:4px;height:16px;background:var(--ov-blue);border-radius:2px;"></div>
+      <span style="font-size:14px;font-weight:700;color:var(--txt);">🗂️ สิ่งที่คุณได้แจ้งไว้ในระบบ</span>
+    </div>
+
+    <div style="background:white; border:1px solid var(--border); border-radius:12px; padding:14px; box-shadow:var(--sh);">
+        <p style="font-size:12px; font-weight:700;" id="vrec-name-lbl">ผู้รับความคุ้มครอง: คุณกนกวรรณ มั่นคง</p>
+        <p style="font-size:11px; color:var(--txt3); margin-top:2px;" id="vrec-case-lbl">กำลังดึงข้อมูลประวัติจากฐานข้อมูลคลาวด์...</p>
+        
+        <div style="margin-top:14px; border-top:1px dashed var(--border); padding-top:12px; text-align:center;" id="vrec-toggle-area">
+            <p style="font-size:11px; color:var(--txt2); margin-bottom:10px;">ระบบจะไม่แสดงรายละเอียดที่ละเอียดอ่อนโดยทันที คุณต้องการเรียกดูบันทึกประวัติหรือไม่?</p>
+            <button onclick="revealVictimRecords()" style="background:var(--ov-blue); color:white; border:none; padding:8px 16px; border-radius:8px; font-size:12px; font-weight:700; cursor:pointer; width:100%;">🔓 กดเพื่อเปิดดูบันทึกประวัติของคุณ</button>
+        </div>
+
+        <div id="vrec-hidden-content" style="display:none; margin-top:12px; background:var(--bg); padding:10px; border-radius:8px; font-size:12px;"></div>
+    </div>
+  </div>
+  <div class="bnav">
+    <div class="bni" onclick="bTab(this);goScreen('s-victim')"><span class="bi">🛡️</span><span class="bl">ความปลอดภัย</span></div>
+    <div class="bni on" onclick="bTab(this);goScreen('s-vrecords')"><span class="bi">📂</span><span class="bl">บันทึกของฉัน</span><div class="bnd"></div></div>
+    <div class="bni" onclick="bTab(this);goScreen('s-vchat')"><span class="bi">💬</span><span class="bl">ศูนย์แชท</span></div>
+    <div class="bni" onclick="doLogout()"><span class="bi">🚪</span><span class="bl">ออกระบบ</span></div>
+  </div>
+</div>
+
+<!-- SCREEN 4: VICTIM MAP (Google Maps Real Interface) -->
+<div class="screen hidden" id="s-vmap">
+  <div class="sb"><span class="sb-t" id="vm-clk">10:57</span><div class="sb-i"><span>📶 5G</span><span>🔋 98%</span></div></div>
+  <div class="tnav" style="border-bottom:2px solid var(--ov-blue);">
+    <button class="tbk" onclick="goScreen('s-victim')">‹</button>
+    <img src="One Voice SafeGuard.png" alt="Logo" style="height:32px; width:auto; object-fit:contain;" onerror="this.style.display='none'">
+    <div class="ttl"><h2>แผนที่พิกัดพิทักษ์ภัย</h2><p>ตำแหน่งเรียลไทม์ (Google Maps API)</p></div>
+  </div>
+  <div style="flex:1; width:100%; position:relative;"><div id="victim-map-canvas" style="width:100%; height:100%; background:#E5E7EB;"></div>
+    <div class="map-legend-box">
+        <div style="font-weight:700; margin-bottom:6px;">ระดับความเร่งด่วน</div>
+        <div class="ml-row"><div class="ml-color" style="background:#EF4444;"></div><span>ด่วนที่สุด</span></div>
+        <div class="ml-row"><div class="ml-color" style="background:#F59E0B;"></div><span>ด่วนมาก</span></div>
+        <div class="ml-row"><div class="ml-color" style="background:#10B981;"></div><span>ด่วน</span></div>
+    </div>
+</div>
+</div>
+
+<!-- SCREEN 5: VICTIM CHAT -->
+<div class="screen hidden" id="s-vchat">
+  <div class="sb"><span class="sb-t" id="vc-clk">10:57</span><div class="sb-i"><span>📶</span><span>🔋</span></div></div>
+  <div class="tnav" style="border-bottom:2px solid var(--ov-blue);">
+    <button class="tbk" onclick="goScreen('s-victim')">‹</button>
+    <img src="One Voice SafeGuard.png" alt="Logo" style="height:32px; width:auto; object-fit:contain;" onerror="this.style.display='none'">
+    <div class="ttl"><h2>ห้องสนทนาพิทักษ์ภัย</h2><p>แชทกับเจ้าหน้าที่ศูนย์ควบคุม</p></div>
+  </div>
+  <div class="chat-body" id="vchat-body">
+    <div class="bwrap center"><div class="bubble sys">🔒 บูรณาการข้อมูลความปลอดภัยเรียลไทม์ (สน.ดอนเมือง)</div></div>
+  </div>
+  <div class="chat-inp-bar">
+    <input class="chat-inp" id="v-inp" placeholder="พิมพ์ข้อความปรึกษา หรือขอความช่วยเหลือ..." onkeydown="if(event.key==='Enter')vSend()">
+    <button class="chat-send" onclick="vSend()">➤</button>
+  </div>
+</div>
+
+<!-- SCREEN 6: COMMAND CENTER (ศูนย์ติดตามสถานการณ์) -->
+<div class="screen hidden" id="s-command">
+  <div class="sb"><span class="sb-t" id="c-clk">10:57</span><div class="sb-i"><span>📶 SYSTEM</span><span>🖥️ ONLINE</span></div></div>
+  <div class="tnav" style="border-bottom:2px solid var(--ov-blue);">
+    <button class="tbk" onclick="doLogout()">‹</button>
+    <img src="One Voice SafeGuard.png" alt="Logo" style="height:36px; width:auto; object-fit:contain;" onerror="this.style.display='none'">
+    <div class="ttl"><h2>ศูนย์ติดตาม One-Voice SafeGuard</h2><p>สถานีตำรวจนครบาลดอนเมือง (Command Center)</p></div>
+    <span class="tbadge b-live" style="background:#E0E7FF;color:#3730A3;">● ควบคุมภาพรวม</span>
+  </div>
+  
+  <div class="sbody" id="command-main-tab-view" style="overflow-y:auto; padding-bottom:40px; display:flex; flex-direction:column;">
+    <div class="stat-row">
+      <div class="stat-box" onclick="alert('แสดงเคสทั้งหมดคดีป้องกันความรุนแรง สน.ดอนเมือง')"><div class="stat-n" id="c-total-cases">0</div><div class="stat-l">เคสทั้งหมดในระบบ</div></div>
+      <div class="stat-box" onclick="alert('แสดงเฉพาะเคสที่มีสัญญาณวิกฤต SOS ในขณะนี้')"><div class="stat-n" style="color:var(--red3);" id="c-sos-count">0</div><div class="stat-l">SOS ด่วน</div></div>
+      <div class="stat-box" onclick="openSafeCasesModal()"><div class="stat-n" style="color:var(--green);" id="c-safe-count">0</div><div class="stat-l">🟢 ปลอดภัย (ดูประวัติ)</div></div>
+    </div>
+    
+    <!-- PATROL UNITS STATUS PANEL -->
+    <div style="margin:12px 16px; padding:12px; background:white; border-radius:12px; border:1px solid var(--border); box-shadow:var(--sh);">
+        <div style="font-size:13px; font-weight:700; color:var(--ov-blue); margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+            <span style="font-size:16px;">🚔</span> สถานะกำลังพลสายตรวจ (5 ชุด)
+        </div>
+        <div id="c-units-status-container" style="display:flex; flex-direction:column;">
+            <p style="font-size:11px; color:var(--txt3); text-align:center;">กำลังโหลดข้อมูล...</p>
+        </div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 16px 4px;">
+      <div style="width:4px;height:16px;background:var(--ov-blue);border-radius:2px;"></div>
+      <span class="urg-alert-title">สัญญาณแจ้งเหตุวิกฤต (Active Cases)</span>
+    </div>
+    
+    <div id="alert-card-container"></div>
+    
+    <div id="c-normal-box" style="margin:12px 16px;padding:24px;background:#fff;border-radius:12px;text-align:center;border:1px dashed var(--border); display:block;">
+      <span style="font-size:28px;">🛡️</span>
+      <h4 style="font-size:13px;margin-top:6px;">สภาวะแวดล้อมปกติ</h4>
+      <p style="font-size:11px;color:var(--txt3);margin-top:2px;">ไม่มีสัญญาณวิกฤตความรุนแรงในเขตพื้นที่รับผิดชอบ</p>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:10px;padding:12px 16px 6px;">
+      <div style="width:4px;height:16px;background:var(--ov-blue);border-radius:2px;"></div>
+      <span style="font-size:14px;font-weight:700;color:var(--txt);">แผนที่พิกัดรวมแบบแผนที่จริง (Google Maps API)</span>
+    </div>
+    <div style="margin:0 16px; height:240px; border-radius:12px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--sh); flex-shrink:0;">
+        <div style="width:100%; height:100%; position:relative;"><div id="command-map-canvas" style="width:100%; height:100%; background:#E5E7EB;"></div>
+    <div class="map-legend-box">
+        <div style="font-weight:700; margin-bottom:6px;">ระดับความเร่งด่วน</div>
+        <div class="ml-row"><div class="ml-color" style="background:#EF4444;"></div><span>ด่วนที่สุด</span></div>
+        <div class="ml-row"><div class="ml-color" style="background:#F59E0B;"></div><span>ด่วนมาก</span></div>
+        <div class="ml-row"><div class="ml-color" style="background:#10B981;"></div><span>ด่วน</span></div>
+    </div>
+</div>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 16px 6px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:4px;height:16px;background:var(--ov-blue);border-radius:2px;"></div>
+        <span style="font-size:14px;font-weight:700;color:var(--txt);">ประวัติการปฏิบัติการ (วันนี้)</span>
+      </div>
+      <button onclick="showTimelineHistoryModal()" style="font-size:11px; background:#EFF6FF; color:var(--ov-blue); border:1px solid #BFDBFE; padding:4px 8px; border-radius:6px; cursor:pointer; box-shadow:var(--sh);">📅 ค้นหาประวัติย้อนหลัง</button>
+    </div>
+    <div class="tl" id="command-timeline"></div>
+  </div>
+
+  <!-- Command Chat Inbox Tab -->
+  <div class="sbody" id="command-chat-tab-view" style="background:#F9FAFB; display:none; flex-direction:column;">
+      <div style="padding:16px; border-bottom:1px solid var(--border); background:white;">
+          <h3 style="font-size:14px; font-weight:700; color:var(--ov-blue);">📥 กล่องข้อความขอรับคำปรึกษา</h3>
+          <p style="font-size:11px; color:var(--txt3);">รายชื่อประชาชนที่ติดต่อเข้ามาเพื่อขอรับคำแนะนำ</p>
+      </div>
+      <div id="c-chat-inbox-list" style="padding:12px 16px; display:flex; flex-direction:column; gap:10px; overflow-y:auto;">
+          <div style="text-align:center; padding:20px; font-size:12px; color:var(--txt3);">ไม่มีข้อความเข้าใหม่</div>
+      </div>
+  </div>
+
+  <!-- Command Bottom Navigation -->
+  <div class="bnav">
+    <div class="bni on" id="c-nav-btn-main" onclick="toggleCommandTab('main')"><span class="bi">🏢</span><span class="bl">ภาพรวมศูนย์</span></div>
+    <div class="bni" id="c-nav-btn-chat" onclick="toggleCommandTab('chat')"><span class="bi">💬</span><span class="bl">แชทปรึกษา</span><div id="c-chat-badge" style="display:none; position:absolute; top:4px; right:30px; width:8px; height:8px; background:var(--red3); border-radius:50%;"></div></div>
+    <div class="bni" onclick="doLogout()"><span class="bi">🚪</span><span class="bl">ออกระบบ</span></div>
+  </div>
+</div>
+
+<!-- SCREEN 7: OFFICER CHAT (Specific Conversation) -->
+<div class="screen hidden" id="s-cchat">
+  <div class="tnav" style="border-bottom:2px solid var(--ov-blue);">
+    <!-- Returns to chat inbox -->
+    <button class="tbk" onclick="goScreen('s-command'); toggleCommandTab('chat');">‹</button>
+    <img src="One Voice SafeGuard.png" alt="Logo" style="height:36px; width:auto; object-fit:contain;" onerror="this.style.display='none'">
+    <div class="ttl"><h2 id="c-active-chat-name">สนทนากับประชาชน</h2><p id="c-active-chat-id">กำลังโหลดข้อมูล...</p></div>
+  </div>
+  <div class="chat-body" id="cchat-body">
+    <div class="bwrap center"><div class="bubble sys">🔒 บูรณาการข้อมูลความปลอดภัยเรียลไทม์ (สน.ดอนเมือง)</div></div>
+  </div>
+  <div class="chat-inp-bar">
+    <input class="chat-inp" id="c-inp" placeholder="ส่งข้อความให้คำปรึกษา..." onkeydown="if(event.key==='Enter')cSend()">
+    <button class="chat-send" onclick="cSend()">➤</button>
+  </div>
+</div>
+
+<!-- SCREEN 8: PATROL OFFICER (เจ้าหน้าที่สายตรวจหน้างาน) -->
+<div class="screen hidden" id="s-patrol-unit">
+  <div class="sb"><span class="sb-t" id="p-clk">10:57</span><div class="sb-i"><span id="p-unit-header-lbl">🚨 UNIT X (สน.ดอนเมือง)</span></div></div>
+  <div class="tnav" style="border-bottom:2px solid var(--green);">
+    <button class="tbk" onclick="doLogout()">‹</button>
+    <img src="One Voice SafeGuard.png" alt="Logo" style="height:36px; width:auto; object-fit:contain;" onerror="this.style.display='none'">
+    <div class="ttl"><h2>สายตรวจหน้างานเคลื่อนที่เร็ว</h2><p>ระบบลาดตระเวนและระงับเหตุอัจฉริยะ</p></div>
+  </div>
+  
+  <div class="sbody" id="patrol-main-tab-view" style="display:flex; flex-direction:column;">
+    <div class="stat-row">
+      <div class="stat-box"><div class="stat-n" id="p-total-cases">0</div><div class="stat-l">เคสทั้งหมดในระบบ</div></div>
+      <div class="stat-box" style="border-color:#FCA5A5;"><div class="stat-n" style="color:var(--red3);" id="p-stat-sos">0</div><div class="stat-l">SOS ด่วน</div></div>
+      <div class="stat-box" style="border-color:#A7F3D0;" onclick="openSafeCasesModal()"><div class="stat-n" style="color:var(--green);" id="p-stat-safe">0</div><div class="stat-l">🟢 ปลอดภัยแล้ว</div></div>
+    </div>
+
+    <div class="alert-card" id="p-job-card" style="display:none; margin-top:12px;">
+        <div id="p-job-content">
+          <div class="alert-hd" id="p-job-header" style="background:linear-gradient(135deg,var(--red2),var(--red3));">
+            <h3 id="p-job-title">⚡ 🚨 ภารกิจเร่งด่วน: SOS ในเขตพื้นที่!</h3>
+            <p>ศูนย์ติดตามส่งผ่านข้อมูลและมอบหมายงานให้ยูนิตของคุณ</p>
+          </div>
+          <div class="alert-body" style="font-size:12px; padding-bottom:12px;">
+            <p><strong>ผู้ประสบภัย:</strong> <span id="p-card-vname">-</span></p>
+            <p style="margin-top:6px;"><strong>พิกัดเป้าหมาย:</strong> ระบุพิกัดภูมิศาสตร์ปลายทางบน Google Maps</p>
+            <div id="p-card-tags"></div>
+          </div>
+          
+          <div style="padding:16px; background:#F0FDF4; border-top:1px solid #A7F3D0;" id="p-acts-area">
+            <button onclick="patrolAcceptJob()" id="p-btn-accept" style="width:100%; background:var(--green); color:white; padding:14px; font-size:14px; font-weight:800; border-radius:12px; border:none; box-shadow:0 4px 12px rgba(39, 174, 96, 0.3); cursor:pointer; display:block;">🎯 กดรับทราบภารกิจ (เริ่มนำทางระบบ)</button>
+            <button onclick="showVictimHistoryFromPatrol()" id="p-btn-history" style="width:100%; background:#F59E0B; color:white; padding:12px; font-size:13px; font-weight:700; border-radius:12px; border:none; box-shadow:0 4px 12px rgba(245, 158, 11, 0.3); cursor:pointer; display:none; margin-top:10px;">📂 ดูประวัติที่เคยถูกกระทำความรุนแรง</button>
+          </div>
+        </div>
+        
+        <div id="p-job-forwarding-status" style="display:none; padding:24px; text-align:center; background:#FFFBEB;">
+            <span style="font-size:36px;">⏳</span>
+            <h3 style="color:var(--ov-orange); margin-top:12px;">รอศูนย์ควบคุมยืนยันการส่งต่อ</h3>
+            <p style="font-size:12px; margin-top:4px; font-weight:bold;" id="p-forward-target-lbl"></p>
+            <p style="font-size:11px; color:var(--txt3); margin-top:4px;">เจ้าหน้าที่สายตรวจสแตนด์บายดูแลความปลอดภัยระหว่างรอปิดเคส</p>
+        </div>
+    </div>
+    
+    <div id="p-no-job" style="margin:12px 16px;padding:24px;background:#fff;border-radius:12px;text-align:center;border:1px dashed var(--border);">
+      <span style="font-size:28px;">🚔</span>
+      <h4 style="font-size:13px;margin-top:6px;" id="p-idle-header">อยู่ระหว่างลาดตระเวนสภาวะปกติ</h4>
+      <p style="font-size:11px;color:var(--txt3);margin-top:2px;">สแตนด์บายรอรับคำสั่งปฏิบัติการจากศูนย์ควบคุม</p>
+    </div>
+
+    <div id="p-report-area" style="display:none;margin:12px 16px;padding:16px;background:white;border-radius:12px;box-shadow:var(--sh);border:1px solid #E2DAD6;">
+      <h3 style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:8px;">📋 รายงานระงับเหตุหน้างาน</h3>
+      <button class="mbtn navy" onclick="patrolReportStatus('เจ้าหน้าที่สายตรวจเข้าระงับเหตุ ยุติความรุนแรงและดูแลความปลอดภัยผู้เสียหายสำเร็จเรียบร้อย')" style="background:var(--green);">✅ 1. เข้าช่วยเหลือสำเร็จ (ปลอดภัย)</button>
+      <button class="mbtn ghost" onclick="showPatrolForm()" style="background:var(--ov-blue); color:#fff; border:none;">📝 2. บันทึกฟอร์มซักถามคดีส่วนกลาง</button>
+      <button class="mbtn red" onclick="showModal('forward-modal')" style="background:var(--ov-orange);">🛑 3. ควบคุมสถานการณ์เรียบร้อยและปิดเคส</button>
+    </div>
+  </div>
+
+  <div class="sbody" id="patrol-map-tab-view" style="display:none; flex-direction:column;">
+    <div style="display:flex;align-items:center;gap:10px;padding:12px 16px 4px;">
+      <div style="width:4px;height:16px;background:var(--green);border-radius:2px;"></div>
+      <span style="font-size:14px;font-weight:700;color:var(--txt);">แผนที่ยุทธวิธีสายตรวจภูมิประเทศจริง (Google Maps API)</span>
+    </div>
+    <div style="flex:1; margin:12px 16px; border-radius:12px; overflow:hidden; border:1px solid var(--border); min-height:340px; box-shadow:var(--sh);">
+        <div style="width:100%; height:100%; position:relative;"><div id="patrol-map-canvas" style="width:100%; height:100%; background:#E5E7EB;"></div>
+    <div class="map-legend-box">
+        <div style="font-weight:700; margin-bottom:6px;">ระดับความเร่งด่วน</div>
+        <div class="ml-row"><div class="ml-color" style="background:#EF4444;"></div><span>ด่วนที่สุด</span></div>
+        <div class="ml-row"><div class="ml-color" style="background:#F59E0B;"></div><span>ด่วนมาก</span></div>
+        <div class="ml-row"><div class="ml-color" style="background:#10B981;"></div><span>ด่วน</span></div>
+    </div>
+</div>
+    </div>
+  </div>
+
+  <div class="bnav">
+    <div class="bni on" id="p-nav-btn-main" onclick="togglePatrolTab('main')"><span class="bi">📋</span><span class="bl">ภารกิจ & รายงาน</span></div>
+    <div class="bni" id="p-nav-btn-map" onclick="togglePatrolTab('map')"><span class="bi">🗺️</span><span class="bl">แผนที่พิกัดสด</span></div>
+    <div class="bni" onclick="doLogout()"><span class="bi">🚪</span><span class="bl">ออกระบบ</span></div>
+  </div>
+</div>
+
+<!-- MODALS OVERLAYS -->
+
+<!-- Patrol Unit Select Modal -->
+<div class="modal-ov" id="unit-select-modal">
+    <div class="modal-sheet">
+        <div class="mhandle"></div>
+        <div class="mttl">🚔 เลือกชุดสายตรวจประจำการ</div>
+        <div class="msub">กรุณาเลือกรหัสเรียกขานของชุดสายตรวจที่คุณประจำการอยู่</div>
+        <div id="unit-select-list" style="display:flex; flex-direction:column; gap:8px; margin-top:12px;">
+            <button class="mbtn navy" onclick="confirmPatrolUnit(1)">🚨 สายตรวจชุดที่ 1</button>
+            <button class="mbtn navy" onclick="confirmPatrolUnit(2)">🚨 สายตรวจชุดที่ 2</button>
+            <button class="mbtn navy" onclick="confirmPatrolUnit(3)">🚨 สายตรวจชุดที่ 3</button>
+            <button class="mbtn navy" onclick="confirmPatrolUnit(4)">🚨 สายตรวจชุดที่ 4</button>
+            <button class="mbtn navy" onclick="confirmPatrolUnit(5)">🚨 สายตรวจชุดที่ 5</button>
+        </div>
+        <button class="mbtn ghost" onclick="closeModal('unit-select-modal');">ยกเลิก</button>
+    </div>
+</div>
+
+<!-- Command Dispatch Select Modal -->
+<div class="modal-ov" id="dispatch-modal">
+    <div class="modal-sheet">
+        <div class="mhandle"></div>
+        <div class="mttl" style="color:var(--red3);">🚔 สั่งการสายตรวจระงับเหตุ</div>
+        <div class="msub">เลือกชุดสายตรวจที่ว่างอยู่ เพื่อเดินทางไปยังจุดเกิดเหตุ</div>
+        <div id="dispatch-unit-list" style="display:flex; flex-direction:column; gap:8px; margin-top:12px;">
+            <!-- Populated dynamically -->
+        </div>
+        <button class="mbtn ghost" onclick="closeModal('dispatch-modal')">ยกเลิก</button>
+    </div>
+</div>
+
+<div class="modal-ov" id="sos-modal"><div class="modal-sheet"><div class="mhandle"></div><div class="mttl">🆘 ยืนยันระดมการช่วยเหลือฉุกเฉิน (SOS)</div><div class="msub">ระบบความปลอดภัยจะส่งพิกัด GPS พร้อมประวัติคดีส่งตรงเข้าศูนย์ควบคุม สน.ดอนเมือง ข้อมูลพร้อมจัดระเบียบส่งสายตรวจระงับเหตุทันที</div>
+<div style="margin-bottom:16px; border-top:1px solid var(--border); padding-top:12px; text-align:left;">
+    <p style="font-size:11px; color:var(--txt2); margin-bottom:8px; font-weight:bold;">เลือกข้อความที่ต้องการส่ง (ไม่บังคับ):</p>
+    <div id="sos-tags-container">
+        <span class="sos-tag t-red" onclick="toggleSosTag(this, 'กำลังมีเหตุ', 'red')">กำลังมีเหตุ</span>
+        <span class="sos-tag t-red" onclick="toggleSosTag(this, 'บาดเจ็บ', 'red')">บาดเจ็บ</span>
+        <span class="sos-tag t-yel" onclick="toggleSosTag(this, 'มีเด็กอยู่ด้วย', 'yellow')">มีเด็กอยู่ด้วย</span>
+        <span class="sos-tag t-yel" onclick="toggleSosTag(this, 'ต้องการรถพยาบาล', 'yellow')">ต้องการรถพยาบาล</span>
+        <span class="sos-tag t-yel" onclick="toggleSosTag(this, 'ผู้ก่อเหตุยังอยู่ในบ้าน', 'yellow')">ผู้ก่อเหตุยังอยู่ในบ้าน</span>
+        <span class="sos-tag t-grn" onclick="toggleSosTag(this, 'ต้องการล่าม', 'green')">ต้องการล่าม</span>
+        <span class="sos-tag t-grn" onclick="toggleSosTag(this, 'ผู้ก่อเหตุออกไปข้างนอกแล้ว', 'green')">ผู้ก่อเหตุออกไปข้างนอกแล้ว</span>
+    </div>
+</div>
+<button class="mbtn red" onclick="submitSOSRealtime()">🚨 ยืนยัน — ส่งสัญญาณช่วยเหลือทันที</button><button class="mbtn ghost" onclick="closeModal('sos-modal')">ยกเลิก</button></div></div>
+<div class="modal-ov" id="contacts-modal"><div class="modal-sheet"><div class="mhandle"></div><div class="mttl">📞 รายชื่อสายด่วนประสานงาน</div><div class="msub">1. ศูนย์วิทยุสื่อสาร สน.ดอนเมือง : 02-566-1234<br>2. ศูนย์ช่วยเหลือสังคม สายด่วน พม. : 1300</div><button class="mbtn ghost" onclick="closeModal('contacts-modal')">ปิด</button></div></div>
+<div class="modal-ov" id="record-modal"><div class="modal-sheet"><div class="mhandle"></div><div class="mttl">📝 ส่งข้อมูลบันทึกความช่วยเหลือเสริม</div><textarea id="record-text-input" style="width:100%;height:80px;border:1px solid var(--border);border-radius:8px;padding:10px;font-family:inherit;font-size:12px;outline:none;margin-bottom:12px;" placeholder="พิมพ์ระบุเพิ่มเติม เช่น คู่กรณีกำลังพยายามพังประตูเข้าห้องนอน..."></textarea><button class="mbtn navy" onclick="sendExtraRecord()">📤 อัปโหลดข้อมูลเสริมส่งให้ตำรวจ</button><button class="mbtn ghost" onclick="closeModal('record-modal')">ปิด</button></div></div>
+
+<!-- Safe Cases Archive Modal -->
+<div class="modal-ov" id="safe-cases-modal">
+    <div class="modal-sheet modal-sheet-lg">
+        <div class="mhandle"></div>
+        <div class="mttl" style="color:var(--green);">🟢 คลังบันทึกเคสที่ปลอดภัยแล้ว (Safe Archive)</div>
+        <div class="msub">รายชื่อผู้เสียหายที่ระบบระงับเหตุ ยุติความเสี่ยง และย้ายเข้าสู่หมวดปลอดภัยเรียบร้อย</div>
+        <div style="flex:1; overflow-y:auto; padding:4px 0 20px;" id="safe-cases-list-container">
+            <p style="font-size:12px; color:var(--txt3); text-align:center; padding:20px;">ไม่มีข้อมูลคดีที่ยุติการกระทำความรุนแรงในรอบเวรปัจจุบัน</p>
+        </div>
+        <button class="mbtn ghost" onclick="closeModal('safe-cases-modal')" style="margin-bottom:0;">ปิดหน้าต่าง</button>
+    </div>
+</div>
+
+<!-- Victim History Modal -->
+<div class="modal-ov" id="victim-history-modal">
+    <div class="modal-sheet modal-sheet-lg">
+        <div class="mhandle"></div>
+        <div class="mttl" style="color:#D97706;">📂 ประวัติความรุนแรงในครอบครัว</div>
+        <div class="msub">ข้อมูลประวัติคดีที่เคยแจ้งเข้ามาในระบบของบุคคลนี้</div>
+        <div style="flex:1; overflow-y:auto; padding:4px 0 20px;" id="victim-history-list-container">
+            <p style="font-size:12px; color:var(--txt3); text-align:center; padding:20px;">กำลังโหลดข้อมูล...</p>
+        </div>
+        <button class="mbtn ghost" onclick="closeModal('victim-history-modal')" style="margin-bottom:0;">ปิดหน้าต่าง</button>
+    </div>
+</div>
+
+<!-- Forward Action Modal for Patrol -->
+<div class="modal-ov" id="forward-modal">
+    <div class="modal-sheet">
+        <div class="mhandle"></div>
+        <div class="mttl" style="color:var(--ov-orange);">🛑 ส่งต่อหน่วยงานและปิดเคส</div>
+        <div class="msub" style="margin-bottom:16px;">กรุณาสอบถามความประสงค์ผู้เสียหายและประเมินสถานการณ์ เพื่อส่งต่อข้อมูลให้หน่วยงานที่รับผิดชอบดำเนินการทางกฎหมาย/เยียวยาต่อไป:</div>
+        <button class="mbtn navy" onclick="requestForwardTo('พนักงานสอบสวนเวร')">👮 ส่งต่อข้อมูลให้ พนักงานสอบสวนเวร</button>
+        <button class="mbtn" style="background:#059669; color:#fff;" onclick="requestForwardTo('เจ้าหน้าที่ พม.')">🤝 ส่งต่อข้อมูลให้ เจ้าหน้าที่ พม.</button>
+        <button class="mbtn ghost" onclick="closeModal('forward-modal')" style="margin-top:8px;">ยกเลิก</button>
+    </div>
+</div>
+
+<div class="modal-ov" id="patrol-form-modal">
+    <div class="modal-sheet modal-sheet-lg">
+        <div class="mhandle"></div>
+        <div class="mttl" style="color:var(--ov-blue);">📝 บันทึกข้อมูลซักถามเบื้องต้น (POLICE ส่วนกลาง)</div>
+        <div style="flex:1; overflow-y:auto; padding:0 4px 20px;">
+            
+            <div class="form-section">
+                <span class="form-lbl">📅 ข้อมูลสถานที่และเวลาเกิดเหตุ</span>
+                <div style="display:flex; gap:8px; margin-bottom:8px;">
+                    <input type="date" class="form-inp" id="e_date" style="flex:1;">
+                    <input type="time" class="form-inp" id="e_time" style="flex:1;">
+                </div>
+                <textarea class="form-inp" id="e_location" placeholder="ระบุสถานที่เกิดเหตุอย่างละเอียด..." style="height:40px;"></textarea>
+            </div>
+            
+            <div class="form-section">
+                <span class="form-lbl">👩 ข้อมูลผู้เสียหาย (ดึงข้อมูลอัตโนมัติ)</span>
+                <div style="display:flex; gap:8px;">
+                    <input type="text" class="form-inp" id="v_fname" placeholder="ชื่อ" readonly style="background:#F9FAFB; color:#6B7280; border-color:#E5E7EB;">
+                    <input type="text" class="form-inp" id="v_lname" placeholder="นามสกุล" readonly style="background:#F9FAFB; color:#6B7280; border-color:#E5E7EB;">
+                </div>
+                <div style="display:flex; gap:8px;">
+                    <input type="number" class="form-inp" id="v_age" placeholder="อายุ" style="width:70px; background:#F9FAFB; color:#6B7280; border-color:#E5E7EB;" readonly>
+                    <input type="text" class="form-inp" id="v_id" placeholder="เลขประจำตัวประชาชน" readonly style="background:#F9FAFB; color:#6B7280; border-color:#E5E7EB;">
+                </div>
+                <textarea class="form-inp" id="v_address" placeholder="ที่อยู่..." style="height:40px; background:#F9FAFB; color:#6B7280; border-color:#E5E7EB;" readonly></textarea>
+            </div>
+            
+            <div class="form-section" style="border-color:var(--red3);">
+                <span class="form-lbl" style="color:var(--red3);">👤 ข้อมูลผู้ก่อเหตุความรุนแรง</span>
+                <div style="display:flex; gap:8px;">
+                    <input type="text" class="form-inp" id="o_fname" placeholder="ชื่อ (ผู้ก่อเหตุ)">
+                    <input type="text" class="form-inp" id="o_lname" placeholder="นามสกุล (ผู้ก่อเหตุ)">
+                </div>
+                <div style="display:flex; gap:8px;">
+                    <input type="number" class="form-inp" id="o_age" placeholder="อายุ" style="width:70px;">
+                    <input type="text" class="form-inp" id="o_relation" placeholder="ความสัมพันธ์กับผู้เสียหาย" style="flex:1;">
+                </div>
+                <input type="text" class="form-inp" id="o_id" placeholder="เลขประจำตัวประชาชน (ผู้ก่อเหตุ)">
+            </div>
+
+            <div class="form-section" style="border-color:var(--orange);">
+                <span class="form-lbl" style="color:var(--orange);">⚠️ พฤติการณ์ที่เกิดขึ้น</span>
+                <textarea class="form-inp" id="incident-desc" style="height:70px;" placeholder="ระบุพฤติการณ์อย่างละเอียด..."></textarea>
+            </div>
+
+            <div class="form-section">
+                <span class="form-lbl">📸 แนบรูปภาพพยานหลักฐาน</span>
+                <label style="font-size:11px; display:block; margin-bottom:4px; font-weight:700;">รูปภาพผู้เสียหาย (หากยินยอม):</label>
+                <input type="file" id="v_image" accept="image/*" class="form-inp" style="padding:6px 10px;" onchange="previewImage(this, 'v_image_preview')">
+                <img id="v_image_preview" style="max-width:100%; max-height:150px; display:none; border-radius:8px; margin-bottom:12px;">
+                <label style="font-size:11px; display:block; margin-bottom:4px; margin-top:4px; font-weight:700;">รูปภาพผู้ก่อเหตุ/สภาพแวดล้อม (ถ้ามี):</label>
+                <input type="file" id="o_image" accept="image/*" class="form-inp" style="padding:6px 10px;" onchange="previewImage(this, 'o_image_preview')">
+                <img id="o_image_preview" style="max-width:100%; max-height:150px; display:none; border-radius:8px;">
+            </div>
+
+        </div>
+        <div style="padding-top:12px; border-top:1px solid var(--border); flex-shrink:0;">
+            <button class="mbtn navy" onclick="submitPatrolForm()">💾 บันทึกเข้าระบบฐานข้อมูลตำรวจ</button>
+            <button class="mbtn ghost" onclick="closeModal('patrol-form-modal')">ยกเลิก</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-ov" id="view-form-modal">
+    <div class="modal-sheet modal-sheet-lg">
+        <div class="mhandle"></div>
+        <div class="mttl" style="color:var(--ov-blue);">🗂️ รายละเอียดข้อมูลบันทึกการซักถาม</div>
+        <div style="flex:1; overflow-y:auto; padding:10px; font-size:12px; line-height:1.6;">
+            <div style="background:#F3F4F6; padding:8px; border-radius:6px; margin-bottom:8px;">
+                <p><strong>📅 วันที่และเวลาเกิดเหตุ:</strong> <span id="v_view_datetime">-</span></p>
+                <p><strong>📍 สถานที่เกิดเหตุ:</strong> <span id="v_view_location">-</span></p>
+            </div>
+            
+            <p><strong>ผู้เสียหาย:</strong> <span id="v_view_name">-</span> (อายุ <span id="v_view_age">-</span> ปี)</p>
+            <p><strong>เลขบัตรประชาชน:</strong> <span id="v_view_id">-</span></p>
+            <p><strong>ที่อยู่ผู้เสียหาย:</strong> <span id="v_view_address">-</span></p>
+            
+            <div style="margin-top:8px; padding-top:8px; border-top:1px dashed var(--border);">
+                <p style="color:var(--red3);"><strong>ผู้ก่อเหตุ:</strong> <span id="o_view_name">-</span> (อายุ <span id="o_view_age">-</span> ปี)</p>
+                <p style="color:var(--red3);"><strong>เลขบัตรประชาชน (ผู้ก่อเหตุ):</strong> <span id="o_view_id">-</span></p>
+                <p style="color:var(--red3);"><strong>ความสัมพันธ์:</strong> <span id="o_view_relation">-</span></p>
+            </div>
+
+            <p style="margin-top:6px; color:var(--orange); font-weight:bold;">พฤติการณ์หน้างาน:</p>
+            <p id="incident_view_desc" style="background:#FFF7ED; padding:8px; border-radius:6px; border:1px solid #FFEDD5;"></p>
+
+            <div id="v_view_img_container" style="display:none; margin-top:12px; border-top:1px dashed var(--border); padding-top:10px;">
+                <p style="font-weight:bold; margin-bottom:4px;">📸 รูปภาพผู้เสียหาย:</p>
+                <img id="v_view_img" style="max-width:100%; max-height:200px; border-radius:8px;">
+            </div>
+            
+            <div id="o_view_img_container" style="display:none; margin-top:12px; border-top:1px dashed var(--border); padding-top:10px;">
+                <p style="font-weight:bold; margin-bottom:4px;">📸 รูปภาพผู้ก่อเหตุ/สภาพแวดล้อม:</p>
+                <img id="o_view_img" style="max-width:100%; max-height:200px; border-radius:8px;">
+            </div>
+
+        </div>
+        <button class="mbtn ghost" onclick="closeModal('view-form-modal')">ปิดหน้าต่างเรียกดู</button>
+    </div>
+</div>
+
+
+<!-- Timeline History Modal -->
+<div class="modal-ov" id="timeline-history-modal">
+    <div class="modal-sheet modal-sheet-lg">
+        <div class="mhandle"></div>
+        <div class="mttl" style="color:var(--ov-blue);">📅 ค้นหาประวัติการปฏิบัติการย้อนหลัง</div>
+        <div class="msub">เลือกวันที่เพื่อดูข้อมูลไทม์ไลน์การปฏิบัติงานของศูนย์ควบคุม สน.ดอนเมือง</div>
+        <div style="padding:10px 0; border-bottom:1px solid var(--border);">
+            <input type="date" id="history-date-picker" class="form-inp" style="margin-bottom:0;" onchange="loadTimelineHistory()">
+        </div>
+        <div style="flex:1; overflow-y:auto; padding:12px 0 20px;" id="timeline-history-container">
+            <p style="font-size:12px; color:var(--txt3); text-align:center; padding:20px;">กรุณาเลือกวันที่ต้องการค้นหา</p>
+        </div>
+        <button class="mbtn ghost" onclick="closeModal('timeline-history-modal')" style="margin-bottom:0;">ปิดหน้าต่าง</button>
+    </div>
+</div>
+
+<!-- STEALTH MODAL -->
+<div class="modal-ov" id="stealth-record-modal">
+  <div id="stealth-ui" onclick="handleStealthTapCount()">
+    <div style="font-size:64px;font-weight:200;color:#666;">10:57</div>
+    <div style="font-size:13px;opacity:0.4;margin-top:8px;">ไม่มีการแจ้งเตือนรูปแบบใหม่</div>
+  </div>
+  <div id="stealth-upload-ui" style="display:none;background:#fff;width:85%;padding:24px;border-radius:20px;text-align:center;margin:auto;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10000;">
+    <h3 style="font-size:15px;font-weight:700;">ระบบกำลังส่งไฟล์ข้อมูลเข้าคลาวด์ปลอดภัย...</h3>
+    <div style="width:100%;height:6px;background:#EDE8E5;border-radius:3px;overflow:hidden;margin-top:10px;"><div id="stealth-bar" style="width:0%;height:100%;background:var(--ov-blue);transition:width 0.2s;"></div></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+</div>
+
+<!-- JAVASCRIPT LOGIC -->
+<script>
+let curScreen = 's-role-select';
+let db = null;
+let selectedRoleType = 'victim';
+
+const posStation = { lat: 13.914210, lng: 100.588523 }; 
+let posVictim = { lat: 13.92480, lng: 100.59210 };     
+let posPatrol = { lat: 13.914210, lng: 100.588523 };     
+
+let globalVictimName = "กนกวรรณ มั่นคง";
+let globalVictimAge = "32";
+let globalVictimId = "1100200345678";
+let globalVictimAddress = "45/1 ม.ดอนเมืองธานี ถ.เดชะตุงคะ แขวงดอนเมือง เขตดอนเมือง กรุงเทพฯ";
+let globalCaseId = "";
+
+// Multi-Unit & Case Tracking variables
+let currentPatrolUnit = 1;
+let globalActiveCases = {};
+let globalUnits = {};
+let myCurrentCase = null; // Used by Patrol and Victim
+let selectedDispatchCaseId = null;
+
+// Global variable to keep track of the person the command center is chatting with
+let currentActiveChatVictimId = null; 
+let globalAllChats = null; 
+
+let countTotalCases = 0;
+let countSosActive = 0;
+let countSafeClosed = 0;
+let timelineFormCache = {};
+let globalTimelineData = {};
+let globalArchiveData = null;
+let drivingInterval = null;
+
+let tempImages = { v: null, o: null };
+
+let selectedSosTags = [];
+function toggleSosTag(el, text, severity) {
+    el.classList.toggle('selected');
+    let idx = selectedSosTags.findIndex(t => t.text === text);
+    if (idx > -1) selectedSosTags.splice(idx, 1);
+    else selectedSosTags.push({text: text, severity: severity});
+}
+
+// Map Objects & Markers
+let mapV = null, mapC = null, mapP = null;
+let markerV_v = null, markerS_c = null, markerS_p = null; 
+let patrolMarkersC = {}; // Holds Unit markers for Command
+let patrolMarkersP = {}; // Holds Unit markers for Patrol
+let markerP_v = null;    // Single marker for Victim showing assigned unit
+let caseMarkersC = {};   // Holds SOS markers for Command
+
+function createCustomMarker(mapInstance, lat, lng, title, textLabel) {
+    if (typeof google !== 'undefined' && google.maps) {
+        return new google.maps.Marker({
+            map: mapInstance,
+            position: { lat: lat, lng: lng },
+            title: title,
+            label: { text: textLabel, fontSize: '13px', fontWeight: 'bold' },
+            animation: google.maps.Animation.DROP
+        });
+    }
+    return null;
+}
+
+function getThaiDateString(timestamp) {
+    const d = new Date(timestamp);
+    const months = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+    return `${d.getDate()} ${months[d.getMonth()]} ${(d.getFullYear() + 543).toString().slice(-2)}`;
+}
+function getTimeString(timestamp) {
+    const d = new Date(timestamp);
+    return d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+}
+function getFullDateTimeString(timestamp) {
+    return `${getThaiDateString(timestamp)} เวลา ${getTimeString(timestamp)} น.`;
+}
+
+function goScreen(id) {
+  if (curScreen === id) return;
+  const prev = document.getElementById(curScreen);
+  const next = document.getElementById(id);
+  if (!prev || !next) return;
+  prev.style.pointerEvents = 'none'; prev.classList.add('left'); next.classList.remove('hidden');
+  setTimeout(() => { prev.classList.add('hidden'); prev.classList.remove('left'); prev.style.pointerEvents = ''; }, 320);
+  curScreen = id;
+  
+  setTimeout(() => {
+      if(id === 's-vmap' && mapV) { google.maps.event.trigger(mapV, 'resize'); if(myCurrentCase) mapV.setCenter({lat:myCurrentCase.lat, lng:myCurrentCase.lng}); else mapV.setCenter(posVictim); }
+      if(id === 's-command' && mapC) { google.maps.event.trigger(mapC, 'resize'); mapC.setCenter(posStation); }
+      if(id === 's-patrol-unit' && mapP) { google.maps.event.trigger(mapP, 'resize'); if(myCurrentCase) mapP.setCenter({lat:myCurrentCase.lat, lng:myCurrentCase.lng}); else mapP.setCenter(posStation); }
+  }, 350);
+}
+
+function selectRole(role) {
+  selectedRoleType = role;
+  
+  if (role === 'patrol') {
+      showModal('unit-select-modal');
+      return;
+  }
+  
+  proceedWithRoleSetup(role);
+}
+
+function confirmPatrolUnit(unitNum) {
+    currentPatrolUnit = unitNum;
+    closeModal('unit-select-modal');
+    proceedWithRoleSetup('patrol');
+}
+
+function proceedWithRoleSetup(role) {
+  const ind = document.getElementById('role-indicator');
+  const simNotice = document.getElementById('victim-simulation-notice');
+  const simFields = document.getElementById('victim-input-fields');
+  const thaidLogo = document.getElementById('thaid-standard-logo');
+  const loginTitle = document.getElementById('login-screen-title');
+  
+  const mainContent = document.getElementById('thaid-main-content');
+  const consentContent = document.getElementById('thaid-consent-content');
+
+  if(role==='victim') {
+    if(loginTitle) loginTitle.textContent = 'ข้อตกลงและเงื่อนไขการใช้งาน';
+    mainContent.style.display = 'none';
+    consentContent.style.display = 'flex';
+    document.getElementById('consent-checkbox').checked = false;
+    document.getElementById('btn-accept-consent').disabled = true;
+    document.getElementById('btn-accept-consent').style.opacity = '0.5';
+
+    ind.innerHTML = '👩 เข้าใช้งานในบทบาท: <strong>ประชาชน / ผู้เสียหาย</strong>';
+    ind.style.background = 'var(--red-lt)'; ind.style.color = 'var(--ov-blue)';
+    simNotice.style.display = 'block'; simFields.style.display = 'block'; thaidLogo.style.display = 'none';
+  } else {
+    consentContent.style.display = 'none';
+    mainContent.style.display = 'block';
+
+    if(role==='command') {
+      if(loginTitle) loginTitle.textContent = 'เข้าสู่ระบบ ศูนย์ติดตาม SafeGuard';
+      ind.innerHTML = '🏢 เข้าใช้งานในบทบาท: <strong>ศูนย์ติดตาม SafeGuard (Command Center)</strong>';
+      ind.style.background = '#E0E7FF'; ind.style.color = '#3730A3';
+    } else if(role==='patrol') {
+      if(loginTitle) loginTitle.textContent = 'เข้าสู่ระบบ เจ้าหน้าที่สายตรวจหน้างาน';
+      ind.innerHTML = `🚔 เข้าใช้งานในบทบาท: <strong>เจ้าหน้าที่สายตรวจหน้างาน (UNIT ${currentPatrolUnit})</strong>`;
+      ind.style.background = '#D1FAE5'; ind.style.color = '#065F46';
+      document.getElementById('p-unit-header-lbl').textContent = `🚨 สายตรวจชุดที่ ${currentPatrolUnit} (สน.ดอนเมือง)`;
+    }
+    simNotice.style.display = 'none'; simFields.style.display = 'none'; thaidLogo.style.display = 'block';
+  }
+  goScreen('s-thaid');
+}
+
+function acceptConsent() {
+    document.getElementById('thaid-consent-content').style.display = 'none';
+    document.getElementById('thaid-main-content').style.display = 'block';
+    const loginTitle = document.getElementById('login-screen-title');
+    if(loginTitle) loginTitle.textContent = 'เข้าสู่ระบบ ประชาชน / ผู้เสียหาย';
+}
+
+function quickFillVictim(name, age, idCard, addr) {
+    const parts = name.split(' ');
+    document.getElementById('td_v_fname').value = parts[0] || '';
+    document.getElementById('td_v_lname').value = parts[1] || '';
+    document.getElementById('td_v_age').value = age;
+    document.getElementById('td_v_id').value = idCard;
+    document.getElementById('td_v_address').value = addr;
+    showToast(`⚡ โหลดข้อมูล คุณ ${parts[0]} สำเร็จ`);
+}
+
+function toggleCommandTab(tab) {
+    document.getElementById('c-nav-btn-main').classList.remove('on');
+    document.getElementById('c-nav-btn-chat').classList.remove('on');
+    document.getElementById('command-main-tab-view').style.display = 'none';
+    document.getElementById('command-chat-tab-view').style.display = 'none';
+
+    if(tab === 'main') {
+        document.getElementById('c-nav-btn-main').classList.add('on');
+        document.getElementById('command-main-tab-view').style.display = 'flex';
+        setTimeout(() => { if(mapC) { google.maps.event.trigger(mapC, 'resize'); mapC.setCenter(posStation); } }, 100);
+    } else if(tab === 'chat') {
+        document.getElementById('c-nav-btn-chat').classList.add('on');
+        document.getElementById('command-chat-tab-view').style.display = 'flex';
+        document.getElementById('c-chat-badge').style.display = 'none';
+    }
+}
+
+function togglePatrolTab(tab) {
+    document.getElementById('p-nav-btn-main').classList.remove('on');
+    document.getElementById('p-nav-btn-map').classList.remove('on');
+    document.getElementById('patrol-main-tab-view').style.display = 'none';
+    document.getElementById('patrol-map-tab-view').style.display = 'none';
+
+    if(tab === 'main') {
+        document.getElementById('p-nav-btn-main').classList.add('on');
+        document.getElementById('patrol-main-tab-view').style.display = 'flex';
+    } else if(tab === 'map') {
+        document.getElementById('p-nav-btn-map').classList.add('on');
+        document.getElementById('patrol-map-tab-view').style.display = 'flex';
+        setTimeout(() => { if(mapP) { google.maps.event.trigger(mapP, 'resize'); if(myCurrentCase) mapP.setCenter({lat:myCurrentCase.lat, lng:myCurrentCase.lng}); else mapP.setCenter(posPatrol); } }, 100);
+    }
+}
+
+function openVictimMapTab() { goScreen('s-vmap'); }
+function revealVictimRecords() {
+    document.getElementById('vrec-toggle-area').style.display = 'none';
+    document.getElementById('vrec-hidden-content').style.display = 'block';
+    showToast('🔓 เปิดพิกัดสิทธิ์เรียกดูข้อมูลปลอดภัยเรียบร้อย');
+}
+
+function setVictimShortcut(fn, ln, ag, id, ad) {
+    document.getElementById('td_v_fname').value = fn;
+    document.getElementById('td_v_lname').value = ln;
+    document.getElementById('td_v_age').value = ag;
+    document.getElementById('td_v_id').value = id;
+    document.getElementById('td_v_address').value = ad;
+}
+
+function doThaiDLogin() {
+  if(selectedRoleType === 'victim') {
+      document.getElementById('victim-timeline').innerHTML = '';
+      const fn = document.getElementById('td_v_fname').value.trim();
+      const ln = document.getElementById('td_v_lname').value.trim();
+      const ag = document.getElementById('td_v_age').value.trim();
+      const id = document.getElementById('td_v_id').value.trim();
+      const ad = document.getElementById('td_v_address').value.trim();
+
+      if(!fn || !ln || !ag || !id || !ad) {
+          alert("⚠️ กรุณากรอกข้อมูลจำลองให้ครบถ้วนเพื่อทดสอบระบบครับ"); return;
+      }
+      globalVictimName = `${fn} ${ln}`; globalVictimAge = ag; globalVictimId = id; globalVictimAddress = ad;
+
+      // จำลองการดึงพิกัด GPS ระดับหลังคาบ้าน (Rooftop) จากฐานข้อมูลทะเบียนราษฎร์ (ThaiD) โดยตรง
+      // แทนการค้นหาจากชื่อถนนผ่าน Google Maps เพื่อความแม่นยำ 100%
+      let adLower = ad.toLowerCase();
+      
+      // ฐานข้อมูลพิกัดจำลอง
+      if (adLower.includes("45/1") && adLower.includes("ดอนเมืองธานี")) {
+          // พิกัดบ้านคุณกนกวรรณ (เป๊ะๆ ระดับหลังคาบ้าน)
+          posVictim = { lat: 13.926250, lng: 100.594120 };
+      } else if (adLower.includes("สนามบิน")) { 
+          posVictim = { lat: 13.929800, lng: 100.609200 }; 
+      } else if (adLower.includes("วิภาวดี")) { 
+          posVictim = { lat: 13.911200, lng: 100.604500 }; 
+      } else if (adLower.includes("ช่างอากาศอุทิศ")) { 
+          posVictim = { lat: 13.918500, lng: 100.589200 }; 
+      } else { 
+          // หากเป็นที่อยู่อื่นที่พิมพ์เข้ามาใหม่ จะสร้างพิกัดเฉพาะเจาะจง (Deterministic) จากตัวอักษร 
+          // เพื่อให้ได้จุดหมุดที่เป๊ะและไม่ซ้ำกัน โดยอิงพื้นที่ สน.ดอนเมือง
+          let hash = 0;
+          for (let i = 0; i < adLower.length; i++) { hash = adLower.charCodeAt(i) + ((hash << 5) - hash); }
+          let latOffset = (hash % 10000) / 1000000;
+          let lngOffset = ((hash >> 4) % 10000) / 1000000;
+          posVictim = { lat: 13.925000 + latOffset, lng: 100.590000 + lngOffset }; 
+      }
+      
+      document.getElementById('gps-coords-v').textContent = `${posVictim.lat.toFixed(6)}, ${posVictim.lng.toFixed(6)} (${ad.substring(0,15)}...)`;
+      
+      // อัปเดตแผนที่ทันที
+      if(typeof updateVictimUI === 'function') updateVictimUI();
+      document.getElementById('v-nav-sub').textContent = `สน.ดอนเมือง · ผู้เสียหาย: ${fn}`;
+      document.getElementById('vrec-name-lbl').textContent = `ผู้รับความคุ้มครอง: คุณ ${globalVictimName}`;
+      
+      document.getElementById('v_fname').value = fn; document.getElementById('v_lname').value = ln;
+      document.getElementById('v_age').value = ag; document.getElementById('v_id').value = id;
+      document.getElementById('v_address').value = ad; document.getElementById('e_location').value = ad;
+      
+      document.getElementById('vrec-toggle-area').style.display = 'block';
+      document.getElementById('vrec-hidden-content').style.display = 'none';
+
+      // อัปเดตประวัติทันทีสำหรับ User ใหม่
+      if(typeof renderVictimRecords === 'function') {
+          renderVictimRecords();
+      }
+  }
+
+  showToast('🔄 ประมวลผลและซิงค์ข้อมูลผ่าน API สำเร็จ...');
+  setTimeout(() => {
+    if(selectedRoleType === 'victim') {
+      document.getElementById('victim-timeline').innerHTML = '';
+        goScreen('s-victim');
+        updateVictimUI();
+    }
+    if(selectedRoleType === 'command') {
+        goScreen('s-command');
+        updateCommandUnitStatusPanel();
+        updateCommandMapMarkers();
+        renderCommandAlertBoxMultiple();
+    }
+    if(selectedRoleType === 'patrol') {
+        goScreen('s-patrol-unit');
+        updatePatrolUI();
+    }
+    setTimeout(() => { syncGlobalStatsUI(); refreshAllChats(); }, 300);
+  }, 800);
+}
+
+function doLogout() { goScreen('s-role-select'); }
+function doLocalReset() {
+    if(confirm("ต้องการเคลียร์หน้าจอสำหรับการพรีเซนต์รอบใหม่หรือไม่?")) {
+        if(db) {
+            db.ref('safeguard/sos').set(null);
+            for(let i=1; i<=5; i++){
+                db.ref(`safeguard/units/${i}`).set({ status: 'idle', lat: posStation.lat, lng: posStation.lng });
+            }
+            db.ref('safeguard/timeline').set(null);
+            db.ref('safeguard/chat').set(null); 
+            db.ref('safeguard/global_stats').set({ total: 0, sos: 0, safe: 0 }); 
+        }
+        showToast('✅ ล้างหน้าจอทดสอบเสร็จสิ้น');
+    }
+}
+
+function syncGlobalStatsUI() {
+    if(!db) return;
+    db.ref('safeguard/global_stats').on('value', snap => {
+        let stats = snap.val() || { total: 0, sos: 0, safe: 0 };
+        
+        countSafeClosed = stats.safe || 0;
+        countSosActive = stats.sos || 0;
+        countTotalCases = countSafeClosed + countSosActive;
+
+        document.getElementById('c-total-cases').textContent = countTotalCases;
+        document.getElementById('c-sos-count').textContent = countSosActive;
+        document.getElementById('c-safe-count').textContent = `🟢 ${countSafeClosed} เคส`;
+
+        // ให้สถิติของสายตรวจตรงกับศูนย์ควบคุมตลอดเวลา 100%
+        let pTotalCases = document.getElementById('p-total-cases');
+        let pStatSos = document.getElementById('p-stat-sos');
+        let pStatSafe = document.getElementById('p-stat-safe');
+        if(pTotalCases) pTotalCases.textContent = countTotalCases;
+        if(pStatSos) pStatSos.textContent = countSosActive;
+        if(pStatSafe) pStatSafe.textContent = `🟢 ${countSafeClosed} เคส`; // The HTML layout for patrol uses just the number inside the circle/box
+    });
+}
+
+function submitSOSRealtime() {
+  closeModal('sos-modal');
+  const today = new Date();
+  const yy = (today.getFullYear() + 543).toString();
+  const mm = (today.getMonth() + 1).toString().padStart(2, '0');
+  const dd = today.getDate().toString().padStart(2, '0');
+  const prefix = `DM${yy}${mm}${dd}`;
+
+  if(db) {
+    db.ref('safeguard/case_sequence/' + prefix).transaction(current => {
+        return (current || 0) + 1;
+    }, (err, committed, snap) => {
+        let seq = "0001";
+        if(committed && snap) {
+            seq = snap.val().toString().padStart(4, '0');
+        }
+        let cid = prefix + seq;
+        globalCaseId = cid; // for fallback
+        
+        let tagsToSave = selectedSosTags.map(t => t.text);
+        let alertLvl = 'red';
+        if (selectedSosTags.length > 0) {
+            if (selectedSosTags.some(t => t.severity === 'red')) alertLvl = 'red';
+            else if (selectedSosTags.some(t => t.severity === 'yellow')) alertLvl = 'yellow';
+            else alertLvl = 'green';
+        }
+        
+        db.ref(`safeguard/sos/${cid}`).set({ 
+            active: true, 
+            status: 'pending', 
+            alertLevel: alertLvl,
+            victimName: globalVictimName, 
+            victimAge: globalVictimAge,
+            victimId: globalVictimId,
+            victimAddress: globalVictimAddress,
+            tags: tagsToSave,
+            caseId: cid, 
+            lat: posVictim.lat, 
+            lng: posVictim.lng,
+            timestamp: Date.now() 
+        });
+        
+        db.ref('safeguard/global_stats').transaction(currentStats => {
+            let stats = currentStats || { total: 0, sos: 0, safe: 0 };
+            stats.sos = (stats.sos || 0) + 1;
+            stats.total = (stats.safe || 0) + stats.sos;
+            return stats;
+        });
+
+        db.ref('safeguard/timeline').push({ title: `🚨 ผู้เสียหาย (${globalVictimName}) กดส่งสัญญาณวิกฤต SOS`, desc: `รหัสอ้างอิง: ${cid}`, color: '#FDECEA', time: Date.now(), caseId: cid });
+    });
+  }
+  showToast('🚨 ส่งสัญญาณช่วยเหลือฉุกเฉินสำเร็จ รอศูนย์ติดตามสั่งการ...');
+}
+
+function listenSosUpdates() {
+  if(!db) return;
+  db.ref('safeguard/sos').on('value', snap => {
+    globalActiveCases = snap.val() || {};
+    
+    // Command Center
+    if (selectedRoleType === 'command') {
+        renderCommandAlertBoxMultiple();
+        updateCommandMapMarkers();
+    }
+    
+    // Victim Updates
+    if (selectedRoleType === 'victim') {
+        updateVictimUI();
+    }
+    
+    // Patrol Updates
+    if (selectedRoleType === 'patrol') {
+        updatePatrolUI();
+    }
+  });
+}
+
+function listenUnitsUpdates() {
+    if(!db) return;
+    db.ref('safeguard/units').on('value', snap => {
+        let units = snap.val();
+        if (!units) {
+            // init
+            for(let i=1; i<=5; i++) {
+                db.ref(`safeguard/units/${i}`).set({ status: 'idle', lat: posStation.lat, lng: posStation.lng });
+            }
+            return;
+        }
+        globalUnits = units;
+
+        if (selectedRoleType === 'command') {
+            updateCommandUnitStatusPanel();
+            updateCommandMapMarkers();
+        }
+
+        if (selectedRoleType === 'patrol') {
+            let myU = globalUnits[currentPatrolUnit];
+            if (myU && mapP) {
+                posPatrol = {lat: myU.lat, lng: myU.lng};
+                if(!patrolMarkersP[currentPatrolUnit]) {
+                    patrolMarkersP[currentPatrolUnit] = createCustomMarker(mapP, posPatrol.lat, posPatrol.lng, "สายตรวจชุดที่ " + currentPatrolUnit, "PT"+currentPatrolUnit);
+                } else {
+                    patrolMarkersP[currentPatrolUnit].setPosition(posPatrol);
+                }
+            }
+        }
+
+        if (selectedRoleType === 'victim' && myCurrentCase && myCurrentCase.dispatchedUnit) {
+            let assignedU = globalUnits[myCurrentCase.dispatchedUnit];
+            if (assignedU && mapV) {
+                let pPos = {lat: assignedU.lat, lng: assignedU.lng};
+                if(!markerP_v) {
+                    markerP_v = createCustomMarker(mapV, pPos.lat, pPos.lng, "สายตรวจที่ดูแลคุณ", "PT"+myCurrentCase.dispatchedUnit);
+                } else {
+                    markerP_v.setPosition(pPos);
+                    markerP_v.setLabel({text: "PT"+myCurrentCase.dispatchedUnit, fontSize:'13px', fontWeight:'bold'});
+                }
+            }
+        }
+    });
+}
+
+function updateVictimUI() {
+    const myCaseId = Object.keys(globalActiveCases).find(k => globalActiveCases[k].victimId === globalVictimId && globalActiveCases[k].active);
+    myCurrentCase = myCaseId ? globalActiveCases[myCaseId] : null;
+
+    // เสมออัปเดตและแสดงหมุดตำแหน่งของผู้เสียหาย ไม่ว่าจะมีคดีที่ Active อยู่หรือไม่
+    if(mapV) {
+        let currentPos = myCurrentCase ? { lat: myCurrentCase.lat || posVictim.lat, lng: myCurrentCase.lng || posVictim.lng } : posVictim;
+        if(!markerV_v) markerV_v = createCustomMarker(mapV, currentPos.lat, currentPos.lng, "ตำแหน่งของคุณ", "👩");
+        else markerV_v.setPosition(currentPos);
+        mapV.setCenter(currentPos);
+    }
+
+    if (myCurrentCase) {
+        // Render SOS state for victim
+        posVictim = { lat: myCurrentCase.lat || posVictim.lat, lng: myCurrentCase.lng || posVictim.lng };
+        
+        const banner = document.getElementById('v-banner');
+        if(banner) {
+            banner.className = 'v-banner vb-sos';
+            document.getElementById('v-banner-title').textContent = '⚠️ ส่งสัญญาณ SOS สำเร็จ - อยู่ระหว่างการตรวจสอบ';
+            document.getElementById('v-banner-sub').textContent = 'ศูนย์ควบคุมดอนเมืองรับทราบสถานะวิกฤตแล้ว กำลังระดมรถสายตรวจ';
+        }
+
+        if(myCurrentCase.status === 'dispatched' || myCurrentCase.status === 'arrived' || myCurrentCase.status === 'forwarding') {
+            document.getElementById('sent-card').style.display = 'flex';
+            if(myCurrentCase.status === 'arrived' || myCurrentCase.status === 'forwarding') {
+                document.getElementById('patrol-title-v').textContent = `👮 เจ้าหน้าที่ตำรวจ (สายตรวจชุดที่ ${myCurrentCase.dispatchedUnit}) มาถึงพิกัดแล้ว`;
+                document.getElementById('patrol-desc-v').innerHTML = '<span style="color:var(--green); font-weight:700;">สายตรวจดูแลความปลอดภัยคุณเรียบร้อยแล้ว</span> ปลอดภัย 100%';
+            } else {
+                document.getElementById('patrol-title-v').textContent = `🚔 สายตรวจชุดที่ ${myCurrentCase.dispatchedUnit} กำลังเดินทางไปหาคุณ`;
+            }
+        } else {
+            document.getElementById('sent-card').style.display = 'none';
+        }
+    } else {
+        // Reset victim UI
+        const banner = document.getElementById('v-banner');
+        if(banner) {
+            banner.className = 'v-banner vb-safe';
+            document.getElementById('v-banner-title').textContent = 'ระบบพิทักษ์ความปลอดภัยเปิดอยู่ (One-Voice SafeGuard)';
+            document.getElementById('v-banner-sub').textContent = 'ศูนย์ควบคุมและกำลังพลสายตรวจแสตนด์บายตลอด 24 ชม.';
+        }
+        document.getElementById('sent-card').style.display = 'none';
+        
+        // ห้ามลบหมุดผู้เสียหายทิ้ง (markerV_v) เพราะเราต้องการให้แสดงตำแหน่งบนแผนที่ตลอดเวลา
+        if(markerP_v) { markerP_v.setMap(null); markerP_v = null; }
+    }
+}
+
+function updatePatrolUI() {
+    const myJobId = Object.keys(globalActiveCases).find(k => globalActiveCases[k].active && globalActiveCases[k].dispatchedUnit == currentPatrolUnit);
+    myCurrentCase = myJobId ? globalActiveCases[myJobId] : null;
+
+    if (myCurrentCase) {
+        document.getElementById('p-job-card').style.display = 'block';
+        document.getElementById('p-no-job').style.display = 'none';
+        
+        document.getElementById('p-card-vname').innerHTML = `นางสาว ${myCurrentCase.victimName} <button onclick="showVictimHistory('${myCurrentCase.victimName}')" style="margin-left:10px; font-size:11px; background:#EFF6FF; color:var(--ov-blue); border:1px solid #BFDBFE; padding:3px 8px; border-radius:6px; cursor:pointer; font-family:'Sarabun',sans-serif;">🔍 ดูประวัติ</button>`;
+        
+        let pLvl = myCurrentCase.alertLevel || 'red';
+        let pHeader = document.getElementById('p-job-header');
+        let pTitle = document.getElementById('p-job-title');
+        if(pHeader && pTitle) {
+            if(pLvl === 'yellow') {
+                pHeader.style.background = 'linear-gradient(135deg, #F59E0B, #D97706)';
+                pTitle.textContent = '⚠️ ภารกิจ: ตรวจสอบเหตุเฝ้าระวัง';
+            } else if(pLvl === 'green') {
+                pHeader.style.background = 'linear-gradient(135deg, var(--green), var(--green2))';
+                pTitle.textContent = '🟢 ภารกิจ: แจ้งเหตุ (สถานการณ์ควบคุมได้)';
+            } else {
+                pHeader.style.background = 'linear-gradient(135deg, var(--red2), var(--red3))';
+                pTitle.textContent = '⚡ 🚨 ภารกิจเร่งด่วน: SOS ในเขตพื้นที่!';
+            }
+        }
+        
+        let pTagsContainer = document.getElementById('p-card-tags');
+        if (pTagsContainer) {
+            if (myCurrentCase.tags && myCurrentCase.tags.length > 0) {
+                pTagsContainer.innerHTML = `<div style="margin-top:8px; padding-top:8px; border-top:1px dashed #A7F3D0;">
+                    <span style="font-size:11px; font-weight:700; color:var(--green);">📝 ข้อมูลเพิ่มเติม:</span>
+                    <div style="display:flex; flex-wrap:wrap; gap:4px; margin-top:4px;">
+                      ${myCurrentCase.tags.map(t => `<span style="background:white; padding:4px 8px; border-radius:12px; font-size:10px; color:var(--green); border:1px solid #A7F3D0;">${t}</span>`).join('')}
+                    </div>
+                </div>`;
+            } else {
+                pTagsContainer.innerHTML = '';
+            }
+        }
+
+        if(myCurrentCase.status === 'forwarding') {
+            document.getElementById('p-job-content').style.display = 'none';
+            document.getElementById('p-job-forwarding-status').style.display = 'block';
+            document.getElementById('p-forward-target-lbl').textContent = `ส่งคำร้องขอส่งต่อให้: ${myCurrentCase.forwardTarget}`;
+            document.getElementById('p-report-area').style.display = 'none';
+        } else {
+            document.getElementById('p-job-content').style.display = 'block';
+            document.getElementById('p-job-forwarding-status').style.display = 'none';
+            
+            if (myCurrentCase.status === 'dispatched') {
+                document.getElementById('p-btn-accept').style.display = 'block';
+                document.getElementById('p-btn-history').style.display = 'none';
+                document.getElementById('p-report-area').style.display = 'none';
+            } else if (myCurrentCase.status === 'arrived') {
+                document.getElementById('p-btn-accept').style.display = 'none';
+                document.getElementById('p-btn-history').style.display = 'block';
+                document.getElementById('p-report-area').style.display = 'block';
+            }
+        }
+
+        if(mapP) {
+            let vPos = {lat: myCurrentCase.lat, lng: myCurrentCase.lng};
+            if(!markerV_p) markerV_p = createCustomMarker(mapP, vPos.lat, vPos.lng, "จุดเกิดเหตุ SOS", "👩");
+            else markerV_p.setPosition(vPos);
+            // Center roughly on victim
+            mapP.setCenter(vPos);
+        }
+
+    } else {
+        document.getElementById('p-job-card').style.display = 'none';
+        document.getElementById('p-no-job').style.display = 'block';
+        document.getElementById('p-report-area').style.display = 'none';
+        if(markerV_p) { markerV_p.setMap(null); markerV_p = null; }
+    }
+}
+
+function renderCommandAlertBoxMultiple() {
+    let container = document.getElementById('alert-card-container');
+    if(!container) return;
+    container.innerHTML = '';
+    
+    let hasActive = false;
+    
+    Object.keys(globalActiveCases).sort((a,b) => globalActiveCases[b].timestamp - globalActiveCases[a].timestamp).forEach(caseId => {
+        let data = globalActiveCases[caseId];
+        if (!data.active) return;
+        hasActive = true;
+        
+        let btnHtml = '';
+        let statusAlert = '';
+        
+        if(data.status === 'forwarding') {
+            btnHtml = `<button class="aact primary" onclick="commandConfirmForwardAndClose('${data.forwardTarget}', '${caseId}', ${data.dispatchedUnit})" style="background:var(--ov-orange); flex:2; font-size:12px;">📤 ยืนยันส่งต่อ ${data.forwardTarget} (ปิดเคส)</button>
+                       <button class="aact primary" onclick="openChatWithVictim('${data.victimId}', '${data.victimName}')" style="flex:0.8; font-size:12px;">💬 แชท</button>`;
+            statusAlert = `<div style="background:#FFF7ED; padding:8px; border-radius:8px; border:1px solid #FFEDD5; margin-top:8px;">
+                              <p style="color:var(--ov-orange); font-weight:bold; font-size:12px;">⚠️ สายตรวจชุดที่ ${data.dispatchedUnit} ขอปิดเคส:</p>
+                              <p style="color:var(--txt2); font-size:11px; margin-top:2px;">ผู้เสียหายมีความประสงค์ส่งต่อข้อมูลให้ ${data.forwardTarget}</p>
+                           </div>`;
+        } else {
+            let isDispatched = (data.status === 'dispatched' || data.status === 'arrived');
+            if (isDispatched) {
+                btnHtml = `
+                    <button class="aact" disabled style="background:#E5E7EB; color:#6B7280; flex:1.5; font-size:12px;">✅ ส่ง สายตรวจชุดที่ ${data.dispatchedUnit} แล้ว</button>
+                    <button class="aact primary" onclick="showVictimHistory('${data.victimName}')" style="background:#F59E0B; flex:1; font-size:12px;">📂 ประวัติ</button>
+                    <button class="aact primary" onclick="openChatWithVictim('${data.victimId}', '${data.victimName}')" style="flex:0.8; font-size:12px;">💬 แชท</button>
+                `;
+            } else {
+                btnHtml = `
+                    <button class="aact danger" onclick="openDispatchModal('${caseId}')" style="font-size:14px; font-weight:800; padding:12px; flex:1.5;">🚔 ส่งสายตรวจ</button>
+                    <button class="aact primary" onclick="showVictimHistory('${data.victimName}')" style="background:#F59E0B; flex:1; font-size:12px;">📂 ประวัติ</button>
+                    <button class="aact primary" onclick="openChatWithVictim('${data.victimId}', '${data.victimName}')" style="flex:0.8; font-size:12px;">💬 แชท</button>
+                `;
+            }
+        }
+
+        let lvl = data.alertLevel || 'red';
+        let borderColor = 'var(--red3)';
+        let headerBg = 'linear-gradient(135deg, var(--red2), var(--red3))';
+        let titleText = '🚨 SOS – สัญญาณความช่วยเหลือเร่งด่วน';
+        
+        if(lvl === 'yellow') {
+            borderColor = '#F59E0B';
+            headerBg = 'linear-gradient(135deg, #F59E0B, #D97706)';
+            titleText = '⚠️ สัญญาณขอความช่วยเหลือ (เฝ้าระวัง)';
+        } else if(lvl === 'green') {
+            borderColor = 'var(--green)';
+            headerBg = 'linear-gradient(135deg, var(--green), var(--green2))';
+            titleText = '🟢 สัญญาณแจ้งเหตุ (สถานการณ์ควบคุมได้)';
+        }
+
+        let div = document.createElement('div');
+        div.className = "alert-card active";
+        div.style.cssText = `margin:10px 16px; border:2px solid ${borderColor}; border-radius:12px; overflow:hidden; box-shadow:var(--shl);`;
+        div.innerHTML = `
+          <div class="alert-hd" style="background:${headerBg};">
+            <h3>${titleText}</h3>
+            <p>รหัสอ้างอิงเคส: ${data.caseId}</p>
+          </div>
+          <div class="alert-body" style="font-size:12px; background:white;">
+            <div class="arow"><span>👤</span><div class="ar-info"><h4>ชื่อผู้ประสบเหตุ</h4><p>นางสาว ${data.victimName} (อายุ ${data.victimAge} ปี)</p></div></div>
+            <div class="arow"><span>📍</span><div class="ar-info"><h4>พิกัดเป้าหมาย (Google Maps จริง)</h4><p>${data.victimAddress} [${data.lat.toFixed(5)}, ${data.lng.toFixed(5)}]</p></div></div>
+            ${statusAlert}
+          </div>
+          <div class="alert-acts" style="background:#FFF5F5; display:flex; gap:6px; flex-wrap:wrap;">
+            ${btnHtml}
+          </div>
+        `;
+        container.appendChild(div);
+    });
+
+    if (hasActive) {
+        document.getElementById('c-normal-box').style.display = 'none';
+    } else {
+        document.getElementById('c-normal-box').style.display = 'block';
+    }
+}
+
+function updateCommandUnitStatusPanel() {
+    const container = document.getElementById('c-units-status-container');
+    if(!container) return;
+    container.innerHTML = '';
+    
+    for(let i=1; i<=5; i++) {
+        let uData = globalUnits[i] || {status: 'idle'};
+        let html = '';
+        if (uData.status === 'idle') {
+            html = `
+                <div class="unit-status-row">
+                    <div style="display:flex; align-items:center; gap:8px;"><span class="unit-badge ub-idle">PT${i}</span> <span>พร้อมปฏิบัติงาน (ว่าง)</span></div>
+                    <span>🟢</span>
+                </div>`;
+        } else {
+            // Find which case this unit is handling
+            let caseName = "เคสวิกฤต";
+            if (uData.targetCaseId && globalActiveCases[uData.targetCaseId]) {
+                caseName = globalActiveCases[uData.targetCaseId].victimName;
+            }
+            html = `
+                <div class="unit-status-row busy">
+                    <div style="display:flex; align-items:center; gap:8px;"><span class="unit-badge ub-busy">PT${i}</span> <span>กำลังระงับเหตุ (${caseName})</span></div>
+                    <span>🔴</span>
+                </div>`;
+        }
+        container.innerHTML += html;
+    }
+}
+
+function updateCommandMapMarkers() {
+    if(!mapC) return;
+    
+    // Clear old case markers
+    Object.keys(caseMarkersC).forEach(k => { if(caseMarkersC[k]) caseMarkersC[k].setMap(null); });
+    caseMarkersC = {};
+    
+    // Draw active cases
+    Object.keys(globalActiveCases).forEach(caseId => {
+        let c = globalActiveCases[caseId];
+        if(c.active) {
+            caseMarkersC[caseId] = createCustomMarker(mapC, c.lat, c.lng, "จุดเกิดเหตุ " + caseId, "👩");
+        }
+    });
+
+    // Draw active units
+    for(let i=1; i<=5; i++) {
+        let u = globalUnits[i];
+        if(u && u.status !== 'idle') {
+            if(!patrolMarkersC[i]) {
+                patrolMarkersC[i] = createCustomMarker(mapC, u.lat, u.lng, "สายตรวจชุดที่ "+i, "PT"+i);
+            } else {
+                patrolMarkersC[i].setPosition({lat: u.lat, lng: u.lng});
+            }
+        } else {
+            if(patrolMarkersC[i]) {
+                patrolMarkersC[i].setMap(null);
+                patrolMarkersC[i] = null;
+            }
+        }
+    }
+}
+
+function openDispatchModal(caseId) {
+    selectedDispatchCaseId = caseId;
+    const list = document.getElementById('dispatch-unit-list');
+    list.innerHTML = '';
+    
+    let hasAvailable = false;
+    for(let i=1; i<=5; i++) {
+        let u = globalUnits[i] || {status:'idle'};
+        if (u.status === 'idle') {
+            hasAvailable = true;
+            list.innerHTML += `<button class="mbtn navy" onclick="commandDispatch(${i})">🚨 มอบหมายให้ UNIT ${i} (ว่าง)</button>`;
+        } else {
+            list.innerHTML += `<button class="mbtn ghost" disabled>UNIT ${i} (กำลังปฏิบัติงาน)</button>`;
+        }
+    }
+    
+    if(!hasAvailable) {
+        list.innerHTML = `<p style="font-size:12px; color:var(--red3); text-align:center; padding:10px;">⚠️ ไม่มีสายตรวจว่างในขณะนี้ กรุณารอสายตรวจปิดเคสเดิม</p>`;
+    }
+    
+    showModal('dispatch-modal');
+}
+
+function commandDispatch(unitId) {
+    if(!selectedDispatchCaseId || !db) return;
+    
+    closeModal('dispatch-modal');
+    showToast(`✅ สั่งการให้ UNIT ${unitId} ไประงับเหตุเรียบร้อย`);
+    
+    let targetCase = globalActiveCases[selectedDispatchCaseId];
+    
+    // Update SOS
+    db.ref(`safeguard/sos/${selectedDispatchCaseId}`).update({ status: 'dispatched', dispatchedUnit: unitId });
+    // Update Unit
+    db.ref(`safeguard/units/${unitId}`).update({ status: 'dispatched', targetCaseId: selectedDispatchCaseId, lat: posStation.lat, lng: posStation.lng });
+    
+    db.ref('safeguard/timeline').push({ title: `🚔 ศูนย์ติดตามมอบหมาย สายตรวจชุดที่ ${unitId}`, desc: `เคลื่อนที่เข้าหาพิกัดคุณ ${targetCase.victimName} ทันที`, color: '#EFF6FF', time: Date.now(), caseId: selectedDispatchCaseId });
+    selectedDispatchCaseId = null;
+}
+
+function patrolAcceptJob() {
+  if(!myCurrentCase) return;
+  showToast('🎯 สายตรวจรับทราบภารกิจ เริ่มขับรถเคลื่อนที่บนแผนที่จริง...');
+  document.getElementById('p-btn-accept').style.display = 'none';
+  
+  let currentProgress = 0;
+  clearInterval(drivingInterval);
+  
+  // Starting point is Station for simulation
+  let startLat = posStation.lat; let startLng = posStation.lng;
+  let targetLat = myCurrentCase.lat; let targetLng = myCurrentCase.lng;
+  
+  drivingInterval = setInterval(() => {
+    currentProgress += 10;
+    if(currentProgress > 100) currentProgress = 100;
+    
+    let curLat = startLat + ((targetLat - startLat) * (currentProgress / 100));
+    let curLng = startLng + ((targetLng - startLng) * (currentProgress / 100));
+    
+    if (db) {
+        db.ref(`safeguard/units/${currentPatrolUnit}`).update({ lat: curLat, lng: curLng });
+    }
+    
+    if(currentProgress >= 100) {
+      clearInterval(drivingInterval);
+      if(db) {
+        db.ref(`safeguard/units/${currentPatrolUnit}`).update({ status: 'arrived' });
+        db.ref(`safeguard/sos/${myCurrentCase.caseId}`).update({ status: 'arrived' });
+        db.ref('safeguard/timeline').push({ title: `📍 สายตรวจชุดที่ ${currentPatrolUnit} เดินทางถึงพิกัดเป้าหมาย`, desc: `เจ้าหน้าที่ถึงหน้างานแล้ว เข้าช่วยเหลือดูแลความปลอดภัยผู้เสียหายสำเร็จ`, color: '#D1FAE5', time: Date.now(), caseId: myCurrentCase.caseId });
+      }
+    }
+  }, 600);
+}
+
+function commandConfirmForwardAndClose(target, caseId, unitId) {
+    showToast('ยืนยันการส่งต่อข้อมูลและปิดเคสเรียบร้อย');
+    if(db) {
+        let cData = globalActiveCases[caseId];
+        if(!cData) return;
+        
+        let vName = cData.victimName;
+        
+        db.ref('safeguard/persistent_history/' + vName).push({
+            time: Date.now(),
+            desc: `ระงับเหตุวิกฤตโดย สายตรวจชุดที่ ${unitId} ยุติเหตุสำเร็จ ส่งต่อข้อมูลให้ ${target}`
+        });
+
+        db.ref('safeguard/timeline').push({ title: `✅ ศูนย์สั่งการยืนยันปิดเคส (สายตรวจชุดที่ ${unitId})`, desc: `อนุมัติข้อมูลส่งตรงถึง ${target} และบันทึกปิดเคสเรียบร้อย`, color: '#D1FAE5', time: Date.now() });
+
+        db.ref('safeguard/timeline').once('value').then(tlSnap => {
+            let records = [];
+            let val = tlSnap.val();
+            if(val) { records = Object.keys(val).map(k => { return { key:k, ...val[k] }; }); }
+            db.ref('safeguard/closed_cases_archive').push({ victimName: vName, caseId: caseId, closeTime: Date.now(), timelineSnap: records, unitId: unitId });
+
+            db.ref('safeguard/global_stats').transaction(current => {
+                let stats = current || { total: 0, sos: 0, safe: 0 };
+                stats.sos = Math.max(0, (stats.sos || 1) - 1);
+                stats.safe = (stats.safe || 0) + 1;
+                stats.total = stats.safe + stats.sos;
+                return stats;
+            });
+
+            // Close SOS
+            db.ref(`safeguard/sos/${caseId}`).update({ active: false });
+            // Free the Unit
+            db.ref(`safeguard/units/${unitId}`).set({ status: 'idle', lat: posStation.lat, lng: posStation.lng });
+        });
+    }
+}
+
+function requestForwardTo(target) {
+    if(!myCurrentCase) return;
+    closeModal('forward-modal');
+    showToast('✅ ปิดเคสสำเร็จ ข้อมูลถูกบันทึกและส่งต่อเรียบร้อย');
+    
+    let caseId = myCurrentCase.caseId;
+    let unitId = currentPatrolUnit;
+    let vName = myCurrentCase.victimName;
+    
+    if(db) {
+        // บันทึกประวัติ
+        db.ref('safeguard/persistent_history/' + vName).push({
+            time: Date.now(),
+            desc: `ระงับเหตุวิกฤตโดย สายตรวจชุดที่ ${unitId} ยุติเหตุสำเร็จ ส่งต่อข้อมูลให้ ${target}`
+        });
+
+        // บันทึก Timeline สุดท้าย
+        db.ref('safeguard/timeline').push({ 
+            title: `✅ สายตรวจยืนยันปิดเคส (สายตรวจชุดที่ ${unitId})`, 
+            desc: `ระงับเหตุและดูแลความปลอดภัยเรียบร้อย ส่งต่อข้อมูลให้ ${target}`, 
+            color: '#D1FAE5', 
+            time: Date.now(), 
+            caseId: caseId 
+        });
+
+        // ดึง Timeline เฉพาะของเคสนี้เพื่อเก็บเข้าคลัง Safe Cases
+        db.ref('safeguard/timeline').once('value').then(tlSnap => {
+            let records = [];
+            let val = tlSnap.val();
+            if(val) { 
+                records = Object.keys(val)
+                    .filter(k => val[k].caseId === caseId)
+                    .map(k => { return { key:k, ...val[k] }; }); 
+            }
+            db.ref('safeguard/closed_cases_archive').push({ victimName: vName, caseId: caseId, closeTime: Date.now(), timelineSnap: records, unitId: unitId });
+
+            // อัปเดตสถิติ
+            db.ref('safeguard/global_stats').transaction(current => {
+                let stats = current || { total: 0, sos: 0, safe: 0 };
+                stats.sos = Math.max(0, (stats.sos || 1) - 1);
+                stats.safe = (stats.safe || 0) + 1;
+                stats.total = stats.safe + stats.sos;
+                return stats;
+            });
+
+            // เปลี่ยนสถานะเพื่อปิดเคสและคืนสายตรวจ
+            db.ref(`safeguard/sos/${caseId}`).update({ active: false });
+            db.ref(`safeguard/units/${unitId}`).set({ status: 'idle', lat: posStation.lat, lng: posStation.lng });
+            
+            // ยกเลิกการลบ Timeline ออกจากหน้าจอรวม 
+            // เพื่อให้ศูนย์ควบคุมสามารถดูประวัติของวันเดียวกันได้
+            // (Timeline ของผู้เสียหายคนเก่าถูกกรองออกที่ UI ของผู้เสียหายแล้ว)
+        });
+    }
+}
+
+function showVictimHistory(vName) {
+    if(!db) return;
+    const container = document.getElementById('victim-history-list-container');
+    container.innerHTML = `<p style="font-size:12px; color:var(--txt3); text-align:center; padding:20px;">กำลังโหลดข้อมูลประวัติของ ${vName}...</p>`;
+    showModal('victim-history-modal');
+    
+    db.ref('safeguard/closed_cases_archive').once('value', snap => {
+        const dataObj = snap.val();
+        if(!dataObj) {
+            container.innerHTML = `<p style="font-size:12px; color:var(--txt3); text-align:center; padding:20px;">ยังไม่มีประวัติการแจ้งเหตุความรุนแรงในระบบสำหรับ ${vName}</p>`;
+            return;
+        }
+        
+        container.innerHTML = '';
+        let count = 0;
+        
+        Object.keys(dataObj).sort((a,b) => dataObj[b].closeTime - dataObj[a].closeTime).forEach(key => {
+            let item = dataObj[key];
+            if (item.victimName === vName || item.victimName.includes(vName.split(' ')[0])) {
+                count++;
+                let div = document.createElement('div');
+                div.className = 'form-section'; div.style.background = '#FFFBEB'; div.style.borderColor = '#FDE68A';
+                
+                let formData = null;
+                if(item.timelineSnap) {
+                    item.timelineSnap.forEach(t => {
+                        if(t.isForm && t.formData) formData = t.formData;
+                    });
+                }
+                
+                let historyHtml = '';
+                if(formData) {
+                    historyHtml = `
+                        <p style="font-size:11px; margin-top:6px;"><strong>📅 วัน/เวลา:</strong> ${formData.e_date || '-'} ${formData.e_time || '-'}</p>
+                        <p style="font-size:11px; margin-top:2px;"><strong>📍 สถานที่:</strong> ${formData.e_location || '-'}</p>
+                        <p style="font-size:11px; margin-top:2px;"><strong>👤 ผู้เสียหาย:</strong> ${formData.v_name || '-'}</p>
+                        <p style="font-size:11px; margin-top:2px; color:var(--red3);"><strong>👤 ผู้ก่อเหตุ:</strong> ${formData.o_name || '-'} (${formData.o_relation || '-'})</p>
+                        <div style="margin-top:6px; padding:6px; background:white; border-radius:6px; border:1px solid #FDE68A; font-size:11px; color:var(--txt2);">
+                            <strong>พฤติการณ์:</strong> ${formData.incident || '-'}
+                        </div>
+                    `;
+                } else {
+                     historyHtml = `<p style="font-size:11px; color:var(--txt3); margin-top:4px;">ไม่มีรายละเอียดฟอร์มซักถาม (เคสถูกระงับ/ยุติก่อน)</p>`;
+                }
+                
+                div.innerHTML = `
+                    <div style="font-weight:700; color:#D97706; font-size:13px;">📁 ประวัติคดีเฝ้าระวัง: ${item.caseId}</div>
+                    ${historyHtml}
+                `;
+                container.appendChild(div);
+            }
+        });
+        
+        if(count === 0) {
+            container.innerHTML = `<p style="font-size:12px; color:var(--txt3); text-align:center; padding:20px;">ไม่มีประวัติการแจ้งเหตุความรุนแรงในระบบสำหรับ ${vName}</p>`;
+        }
+    });
+}
+
+function showVictimHistoryFromPatrol() {
+    let name = document.getElementById('p-card-vname').textContent.replace('นางสาว', '').trim();
+    if(name && name !== '-') { showVictimHistory(name); } else { showVictimHistory(globalVictimName); }
+}
+
+function previewImage(input, previewId) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var img = new Image();
+            img.onload = function() {
+                // สร้าง Canvas เพื่อทำการบีบอัดภาพ (Image Compression)
+                var canvas = document.createElement('canvas');
+                var ctx = canvas.getContext('2d');
+                
+                // กำหนดขนาดสูงสุด (Max Width/Height) ป้องกันไฟล์รูปใหญ่เกินไปจนทำ Database พัง
+                var MAX_WIDTH = 800;
+                var MAX_HEIGHT = 800;
+                var width = img.width;
+                var height = img.height;
+
+                if (width > height) {
+                    if (width > MAX_WIDTH) {
+                        height *= MAX_WIDTH / width;
+                        width = MAX_WIDTH;
+                    }
+                } else {
+                    if (height > MAX_HEIGHT) {
+                        width *= MAX_HEIGHT / height;
+                        height = MAX_HEIGHT;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                ctx.drawImage(img, 0, 0, width, height);
+
+                // แปลงรูปกลับเป็น Base64 ด้วยคุณภาพแค่ 60% (ลดขนาดไฟล์จาก 5MB เหลือประมาณ 100KB)
+                var dataurl = canvas.toDataURL('image/jpeg', 0.6);
+
+                document.getElementById(previewId).src = dataurl;
+                document.getElementById(previewId).style.display = 'block';
+                
+                if (previewId.includes('v_')) tempImages.v = dataurl;
+                if (previewId.includes('o_')) tempImages.o = dataurl;
+            }
+            img.src = e.target.result;
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function showPatrolForm() {
+    tempImages = { v: null, o: null };
+    document.getElementById('v_image').value = '';
+    document.getElementById('o_image').value = '';
+    document.getElementById('v_image_preview').style.display = 'none';
+    document.getElementById('o_image_preview').style.display = 'none';
+    
+    let now = new Date();
+    document.getElementById('e_date').value = now.toISOString().split('T')[0];
+    document.getElementById('e_time').value = now.toTimeString().substring(0,5);
+
+    // --- AUTO-FILL VICTIM DATA LOGIC ---
+    if (myCurrentCase) {
+        let nameParts = myCurrentCase.victimName ? myCurrentCase.victimName.split(' ') : ['', ''];
+        document.getElementById('v_fname').value = nameParts[0] || '';
+        document.getElementById('v_lname').value = nameParts.slice(1).join(' ') || '';
+        document.getElementById('v_age').value = myCurrentCase.victimAge || '';
+        document.getElementById('v_id').value = myCurrentCase.victimId || '';
+        document.getElementById('v_address').value = myCurrentCase.victimAddress || '';
+    } else {
+        let nameParts = globalVictimName.split(' ');
+        document.getElementById('v_fname').value = nameParts[0] || '';
+        document.getElementById('v_lname').value = nameParts.slice(1).join(' ') || '';
+        document.getElementById('v_age').value = globalVictimAge || '';
+        document.getElementById('v_id').value = globalVictimId || '';
+        document.getElementById('v_address').value = globalVictimAddress || '';
+    }
+    
+    // --- CLEAR SUSPECT/INCIDENT DATA LOGIC ---
+    document.getElementById('o_fname').value = '';
+    document.getElementById('o_lname').value = '';
+    document.getElementById('o_age').value = '';
+    document.getElementById('o_relation').value = '';
+    document.getElementById('o_id').value = '';
+    document.getElementById('incident-desc').value = '';
+
+    showModal('patrol-form-modal');
+}
+
+function submitPatrolForm() {
+  closeModal('patrol-form-modal');
+  showToast('💾 ข้อมูลฟอร์มซักถามคดีพร้อมรูปภาพถูกบันทึกลงฐานข้อมูลสำเร็จ');
+  if(db) {
+    db.ref('safeguard/timeline').push({ 
+        title: `📝 บันทึกแบบฟอร์มซักถามคดี (สายตรวจชุดที่ ${currentPatrolUnit})`, 
+        desc: `จัดระเบียบข้อมูลคู่กรณี พฤติการณ์แวดล้อม และบันทึกมาตรการคุ้มครองความปลอดภัยส่วนบุคคลเข้าระบบกลาง`, 
+        color: '#DBEAFE', 
+        time: Date.now(),
+        caseId: (myCurrentCase ? myCurrentCase.caseId : globalCaseId),
+        isForm: true,
+        formData: {
+            e_date: document.getElementById('e_date').value,
+            e_time: document.getElementById('e_time').value,
+            e_location: document.getElementById('e_location').value,
+            v_name: document.getElementById('v_fname').value + ' ' + document.getElementById('v_lname').value, 
+            v_age: document.getElementById('v_age').value, 
+            v_id: document.getElementById('v_id').value, 
+            v_address: document.getElementById('v_address').value,
+            o_name: document.getElementById('o_fname').value + ' ' + document.getElementById('o_lname').value,
+            o_age: document.getElementById('o_age').value,
+            o_id: document.getElementById('o_id').value,
+            o_relation: document.getElementById('o_relation').value,
+            incident: document.getElementById('incident-desc').value,
+            v_image: tempImages.v,
+            o_image: tempImages.o
+        }
+    });
+  }
+}
+
+function openSafeCasesModal() {
+    if(!db) return;
+    db.ref('safeguard/closed_cases_archive').once('value', snap => {
+        const dataObj = snap.val();
+        const container = document.getElementById('safe-cases-list-container');
+        if(!container) return;
+        
+        if(!dataObj) {
+            container.innerHTML = `<p style="font-size:12px; color:var(--txt3); text-align:center; padding:20px;">ไม่มีข้อมูลคดีที่ยุติการกระทำความรุนแรงในรอบเวรปัจจุบัน</p>`;
+            showModal('safe-cases-modal'); return;
+        }
+        
+        container.innerHTML = '';
+        Object.keys(dataObj).forEach(key => {
+            let item = dataObj[key];
+            let div = document.createElement('div');
+            div.className = 'form-section'; div.style.background = '#F0FDF4'; div.style.borderColor = '#A7F3D0';
+            
+            let tlHtml = '';
+            let formKey = null;
+            if(item.timelineSnap) {
+                item.timelineSnap.forEach(t => {
+                    tlHtml += `<div style="font-size:11px; color:var(--txt2); margin-top:4px; padding-left:6px; border-left:1px solid var(--green);">• <strong>${t.title}</strong>: ${t.desc}</div>`;
+                    if(t.isForm && t.formData) {
+                        formKey = t.key;
+                        timelineFormCache[t.key] = t.formData;
+                    }
+                });
+            }
+            
+            let viewBtnHtml = formKey ? `<button onclick="openViewFormModal('${formKey}')" style="margin-top:10px; width:100%; background:var(--green); color:white; border:none; padding:6px; font-size:11px; border-radius:6px; cursor:pointer; font-weight:700;">🔍 เปิดดูบันทึกซักถามของเคสนี้</button>` : '';
+
+            div.innerHTML = `
+                <div style="font-weight:700; color:var(--green); font-size:13px;">🟢 เคสคุ้มครองสำเร็จ: คุณ ${item.victimName}</div>
+                <p style="font-size:11px; color:var(--txt3); margin-top:2px;">เลขคดีเฝ้าระวัง: ${item.caseId}</p>
+                <p style="font-size:11px; color:var(--txt3); margin-top:2px;"><strong>วันที่ยุติเหตุ:</strong> ${getThaiDateString(item.closeTime)} เวลา ${getTimeString(item.closeTime)} น.</p>
+                <div style="margin-top:6px; padding-top:4px; border-top:1px dashed #A7F3D0;">${tlHtml}</div>
+                ${viewBtnHtml}
+            `;
+            container.appendChild(div);
+        });
+        showModal('safe-cases-modal');
+    });
+}
+
+function listenTimelineUpdates() {
+  if(!db) return;
+  db.ref('safeguard/timeline').on('value', snap => {
+      const val = snap.val();
+      globalTimelineData = val || {};
+      const tlV = document.getElementById('victim-timeline'); const tlC = document.getElementById('command-timeline');
+      if(tlV) tlV.innerHTML = ''; if(tlC) tlC.innerHTML = '';
+      
+      const now = new Date();
+      const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+
+      if(!val) {
+          let emptyHtml = `<p style="font-size:11px; color:var(--txt3); text-align:center; padding:12px; width:100%;">✨ สภาวะปกติ - ทุกเคสได้รับการดูแลและปลอดภัยเรียบร้อย</p>`;
+          if(tlV) tlV.innerHTML = emptyHtml; if(tlC) tlC.innerHTML = emptyHtml;
+          return;
+      }
+
+      Object.keys(val).map(k => { return { key: k, ...val[k] }; }).sort((a,b) => b.time - a.time).forEach(data => {
+          // Filter out timeline for victim view strictly by caseId (V14.32 Fixed)
+          if(selectedRoleType === 'victim') {
+              let currentVCase = myCurrentCase ? myCurrentCase.caseId : globalCaseId;
+              
+              // 1. ถ้าผู้เสียหายยังไม่ได้กด SOS (ไม่มีเคส) -> ไม่ต้องแสดง Timeline ใดๆ ของใครเลยทั้งสิ้น
+              if(!currentVCase) return;
+              
+              // 2. ถ้ากด SOS แล้ว -> ให้แสดง "เฉพาะ" เหตุการณ์ที่มี caseId ตรงกับตัวเองเท่านั้น 
+              // (เหตุการณ์ไหนไม่มี caseId หรือเป็นของคนอื่น ให้บล็อกทิ้ง 100%)
+              if(data.caseId !== currentVCase) return; 
+          }
+          let btnHtml = '';
+          if(data.isForm && data.formData) {
+              timelineFormCache[data.key] = data.formData;
+              btnHtml = `<button onclick="openViewFormModal('${data.key}')" style="margin-top:6px; background:var(--ov-blue); color:white; border:none; padding:4px 8px; font-size:11px; border-radius:4px; cursor:pointer;">🔍 ดูข้อมูลบันทึกซักถาม</button>`;
+          }
+          const html = `<div class="tl-dot" style="background:${data.color || '#EEF2FF'}">📌</div><div class="tl-b"><div class="tl-t">${data.title}</div><div class="tl-d">${data.desc}</div>${btnHtml}<div class="tl-ts">${getThaiDateString(data.time)} · ${getTimeString(data.time)} น.</div></div>`;
+          if(tlV) { const dV = document.createElement('div'); dV.className = 'tl-item'; dV.innerHTML = html; tlV.appendChild(dV); }
+          if(tlC && data.time >= startOfToday) { const dC = document.createElement('div'); dC.className = 'tl-item'; dC.innerHTML = html; tlC.appendChild(dC); }
+      });
+      if(tlC && tlC.innerHTML === '') {
+          tlC.innerHTML = `<p style="font-size:11px; color:var(--txt3); text-align:center; padding:12px; width:100%;">✨ สภาวะปกติ - ไม่มีเหตุการณ์ในวันนี้</p>`;
+      }
+  });
+}
+
+function openViewFormModal(key) {
+    // 1. พยายามดึงจาก Cache ก่อน
+    let data = timelineFormCache[key]; 
+    
+    // 2. ถ้า Cache หาย ให้พยายามดึงจาก globalTimelineData
+    if(!data && globalTimelineData && globalTimelineData[key] && globalTimelineData[key].formData) {
+        data = globalTimelineData[key].formData;
+        timelineFormCache[key] = data; // เติม Cache คืน
+    }
+    
+    // 3. ถ้ายังไม่เจออีก ให้ลองไปหาในคลัง Archive (กรณีเคสปิดไปแล้วข้ามวัน)
+    if(!data && globalArchiveData) {
+        Object.values(globalArchiveData).forEach(c => {
+            if(c.timelineSnap) {
+                c.timelineSnap.forEach(t => {
+                    if(t.key === key && t.formData) {
+                        data = t.formData;
+                        timelineFormCache[key] = data;
+                    }
+                });
+            }
+        });
+    }
+
+    if(!data) {
+        alert("ไม่พบข้อมูลฟอร์มซักถาม (อาจถูกล้างจากหน่วยความจำชั่วคราว)");
+        return;
+    }
+    
+    let dtStr = (data.e_date && data.e_time) ? `${data.e_date} เวลา ${data.e_time} น.` : '-';
+    document.getElementById('v_view_datetime').textContent = dtStr;
+    document.getElementById('v_view_location').textContent = data.e_location || '-';
+
+    document.getElementById('v_view_name').textContent = data.v_name || '-';
+    document.getElementById('v_view_age').textContent = data.v_age || '-';
+    document.getElementById('v_view_id').textContent = data.v_id || '-';
+    document.getElementById('v_view_address').textContent = data.v_address || '-';
+    
+    document.getElementById('o_view_name').textContent = data.o_name || '-';
+    document.getElementById('o_view_age').textContent = data.o_age || '-';
+    document.getElementById('o_view_id').textContent = data.o_id || '-';
+    document.getElementById('o_view_relation').textContent = data.o_relation || '-';
+
+    document.getElementById('incident_view_desc').textContent = data.incident || '-';
+    
+    if(data.v_image) {
+        document.getElementById('v_view_img').src = data.v_image;
+        document.getElementById('v_view_img_container').style.display = 'block';
+    } else {
+        document.getElementById('v_view_img_container').style.display = 'none';
+    }
+    
+    if(data.o_image) {
+        document.getElementById('o_view_img').src = data.o_image;
+        document.getElementById('o_view_img_container').style.display = 'block';
+    } else {
+        document.getElementById('o_view_img_container').style.display = 'none';
+    }
+    
+    showModal('view-form-modal');
+}
+
+function listenPatrolSafeStats() {
+    if(!db) return;
+    db.ref('safeguard/closed_cases_archive').on('value', snap => {
+        globalArchiveData = snap.val();
+        
+        // 1. Update Patrol Own Stats (REMOVED: Now uses Global Stats from syncGlobalStatsUI)
+        
+        // 2. Update Victim "My Records" screen dynamically
+        renderVictimRecords();
+    });
+}
+
+function renderVictimRecords() {
+    let container = document.getElementById('vrec-hidden-content');
+    if(!container) return;
+    
+    if(globalArchiveData) {
+        let myRecords = [];
+        Object.values(globalArchiveData).forEach(c => {
+            // กรองให้แสดงเฉพาะคดีของผู้เสียหายที่ตรงกับชื่อตอน Login เท่านั้น
+            if(c.victimName === globalVictimName) myRecords.push(c);
+        });
+        
+        if(myRecords.length > 0) {
+            document.getElementById('vrec-case-lbl').textContent = "สถานะบัญชี: มีประวัติรับการคุ้มครองความปลอดภัยอยู่ในฐานข้อมูล";
+            let listHtml = `<p style="font-weight:bold; color:var(--ov-blue); margin-bottom:6px;">📋 บันทึกประวัติสิ่งที่คุณได้แจ้งไว้ในระบบก่อนหน้านี้:</p>`;
+            
+            myRecords.sort((a,b) => b.closeTime - a.closeTime).forEach(c => {
+                let formKey = null;
+                if(c.timelineSnap) {
+                    c.timelineSnap.forEach(t => {
+                        if(t.isForm && t.formData) {
+                            formKey = t.key;
+                            timelineFormCache[t.key] = t.formData; // Ensure cache is populated
+                        }
+                    });
+                }
+                
+                let viewBtnHtml = formKey ? `<button onclick="openViewFormModal('${formKey}')" style="margin-top:8px; background:white; color:var(--ov-blue); border:1px solid var(--border); padding:6px 12px; font-size:11px; border-radius:6px; cursor:pointer; font-weight:700; width:100%; box-shadow:var(--sh);">🔍 กดดูแบบฟอร์มซักถามคดีที่คุณให้ข้อมูลไว้</button>` : '';
+
+                listHtml += `<div style="padding:10px; background:#F9FAFB; border-left:4px solid var(--ov-blue); margin-bottom:8px; border-radius:6px; border:1px solid var(--border);">
+                    <div style="font-size:12px; font-weight:700; color:var(--ov-blue); margin-bottom:4px;">รหัสอ้างอิงคดี: ${c.caseId}</div>
+                    <div style="font-size:11px; color:var(--txt2);"><strong>วันที่เกิดเหตุ:</strong> ${getThaiDateString(c.closeTime)} เวลา ${getTimeString(c.closeTime)} น.</div>
+                    <div style="font-size:11px; color:var(--txt2); margin-top:2px;"><strong>หน่วยงานระงับเหตุ:</strong> สายตรวจชุดที่ ${c.unitId || '-'}</div>
+                    ${viewBtnHtml}
+                </div>`;
+            });
+            container.innerHTML = listHtml;
+        } else {
+            document.getElementById('vrec-case-lbl').textContent = "สถานะบัญชี: ลงทะเบียนใหม่ผ่านระบบคุ้มครองพิทักษ์สิทธิ์";
+            container.innerHTML = `<p style="color:var(--txt3);">🟢 คุณยังไม่มีประวัติการกระทำความรุนแรงซ้ำในสารบบความคุ้มครองนี้ ข้อมูลในปัจจุบันของคุณจะได้รับการดูแลสูงสุด</p>`;
+        }
+    } else {
+        document.getElementById('vrec-case-lbl').textContent = "สถานะบัญชี: ลงทะเบียนใหม่ผ่านระบบคุ้มครองพิทักษ์สิทธิ์";
+        container.innerHTML = `<p style="color:var(--txt3);">🟢 คุณยังไม่มีประวัติการกระทำความรุนแรงซ้ำในสารบบความคุ้มครองนี้ ข้อมูลในปัจจุบันของคุณจะได้รับการดูแลสูงสุด</p>`;
+    }
+}
+
+function listenChatUpdates() {
+  if(!db) return;
+  db.ref('safeguard/chat').on('value', snap => {
+    globalAllChats = snap.val();
+    refreshAllChats();
+  });
+}
+
+function refreshAllChats() {
+    if (selectedRoleType === 'victim') {
+        const vbody = document.getElementById('vchat-body');
+        if(vbody) {
+            vbody.innerHTML = '<div class="bwrap center"><div class="bubble sys">🔒 บูรณาการข้อมูลความปลอดภัยเรียลไทม์ (สน.ดอนเมือง)</div></div>';
+            if(globalAllChats && globalAllChats[globalVictimId]) {
+                 let chatArr = Object.keys(globalAllChats[globalVictimId].messages || {}).map(k => globalAllChats[globalVictimId].messages[k]).sort((a,b) => a.timestamp - b.timestamp);
+                 chatArr.forEach(d => {
+                    appendMsgText('vchat-body', d.role==='victim'?'usr':'off', d.msg, getFullDateTimeString(d.timestamp), d.name);
+                 });
+            }
+        }
+    }
+
+    if (selectedRoleType === 'command') {
+        const inboxList = document.getElementById('c-chat-inbox-list');
+        const badge = document.getElementById('c-chat-badge');
+        if(inboxList) {
+            inboxList.innerHTML = '';
+            let hasUnread = false;
+            
+            if(!globalAllChats) {
+                inboxList.innerHTML = '<div style="text-align:center; padding:20px; font-size:12px; color:var(--txt3);">ไม่มีข้อความเข้าใหม่</div>';
+            } else {
+                Object.keys(globalAllChats).forEach(vId => {
+                    let chatSession = globalAllChats[vId];
+                    if(!chatSession.messages) return;
+                    
+                    let msgs = Object.values(chatSession.messages).sort((a,b) => b.timestamp - a.timestamp);
+                    let lastMsg = msgs[0];
+                    if(!lastMsg) return;
+                    
+                    if(lastMsg.role === 'victim') hasUnread = true;
+
+                    let div = document.createElement('div');
+                    div.style.cssText = "background:white; border:1px solid var(--border); border-radius:12px; padding:12px; display:flex; gap:12px; cursor:pointer; align-items:center; box-shadow:0 2px 8px rgba(0,0,0,0.04);";
+                    div.onclick = function() { openChatWithVictim(vId, chatSession.victimName); };
+                    
+                    div.innerHTML = `
+                        <div style="width:40px; height:40px; border-radius:50%; background:var(--blue-lt); display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0;">👤</div>
+                        <div style="flex:1; overflow:hidden;">
+                            <div style="display:flex; justify-content:space-between; align-items:baseline;">
+                                <div style="font-size:13px; font-weight:700; color:var(--txt);">${chatSession.victimName}</div>
+                                <div style="font-size:10px; color:var(--txt3);">${getTimeString(lastMsg.timestamp)} น.</div>
+                            </div>
+                            <div style="font-size:10px; color:var(--txt3); margin-top:2px;">เลข ปชช: ${vId}</div>
+                            <div style="font-size:11px; color:var(--txt2); margin-top:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${lastMsg.msg}</div>
+                        </div>
+                    `;
+                    inboxList.appendChild(div);
+                });
+            }
+            if(hasUnread && document.getElementById('command-chat-tab-view').style.display === 'none') {
+                if (badge) badge.style.display = 'block';
+            }
+        }
+
+        const cbody = document.getElementById('cchat-body');
+        if(cbody && currentActiveChatVictimId) {
+             cbody.innerHTML = '<div class="bwrap center"><div class="bubble sys">🔒 บูรณาการข้อมูลความปลอดภัยเรียลไทม์ (สน.ดอนเมือง)</div></div>';
+             if(globalAllChats && globalAllChats[currentActiveChatVictimId]) {
+                 let chatArr = Object.keys(globalAllChats[currentActiveChatVictimId].messages || {}).map(k => globalAllChats[currentActiveChatVictimId].messages[k]).sort((a,b) => a.timestamp - b.timestamp);
+                 chatArr.forEach(d => {
+                    appendMsgText('cchat-body', d.role==='command'?'usr':'off', d.msg, getFullDateTimeString(d.timestamp), d.name);
+                 });
+             }
+        }
+    }
+}
+
+function openChatWithVictim(vId, vName) {
+    currentActiveChatVictimId = vId;
+    document.getElementById('c-active-chat-name').textContent = vName;
+    document.getElementById('c-active-chat-id').textContent = 'เลข ปชช: ' + vId;
+    
+    refreshAllChats();
+    goScreen('s-cchat');
+}
+
+function vSend() { 
+    const inp = document.getElementById('v-inp'); const txt = inp.value.trim(); if(!txt) return; inp.value=''; 
+    if(db) {
+        db.ref('safeguard/chat/' + globalVictimId).update({
+            victimName: globalVictimName,
+            lastUpdate: Date.now()
+        });
+        db.ref('safeguard/chat/' + globalVictimId + '/messages').push({ role:'victim', name:globalVictimName, msg:txt, timestamp:Date.now() }); 
+    }
+}
+
+function cSend() { 
+    const inp = document.getElementById('c-inp'); const txt = inp.value.trim(); if(!txt) return; inp.value=''; 
+    if(db && currentActiveChatVictimId) {
+        db.ref('safeguard/chat/' + currentActiveChatVictimId + '/messages').push({ role:'command', name:'ศูนย์ควบคุมดอนเมือง', msg:txt, timestamp:Date.now() }); 
+    }
+}
+
+function patrolReportStatus(statusString) {
+  showToast('📤 รายงานความคืบหน้าเข้าสู่ระบบกลาง SafeGuard สำเร็จ');
+  if(db) { db.ref('safeguard/timeline').push({ title: `👮 บันทึกรายงานจากสายตรวจหน้างาน (สายตรวจชุดที่ ${currentPatrolUnit})`, desc: statusString, color: '#FEF3C7', time: Date.now(), caseId: (myCurrentCase ? myCurrentCase.caseId : globalCaseId) }); }
+}
+
+function appendMsgText(bodyId, cls, msg, timeStr, senderName) {
+  const body = document.getElementById(bodyId); if(!body) return;
+  const wrap = document.createElement('div'); wrap.className = 'bwrap ' + (cls === 'usr' ? 'right' : 'left');
+  const b = document.createElement('div'); b.className = 'bubble ' + cls; b.textContent = msg;
+  const ts = document.createElement('div'); ts.className = 'bt'; ts.textContent = senderName + ' · ' + timeStr;
+  wrap.appendChild(b); wrap.appendChild(ts); body.appendChild(wrap); setTimeout(() => { body.scrollTop = body.scrollHeight; }, 30);
+}
+
+let stealthTapCount = 0; let stealthTapTimer = null;
+function startStealthRecord() { showModal('stealth-record-modal'); document.getElementById('stealth-ui').style.display = 'flex'; document.getElementById('stealth-upload-ui').style.display = 'none'; stealthTapCount = 0; showToast('🎥 บันทึกพยานหลักฐานโหมดซ่อนตัวทำงานแล้ว'); }
+function handleStealthTapCount() {
+  stealthTapCount++; clearTimeout(stealthTapTimer); stealthTapTimer = setTimeout(() => { stealthTapCount = 0; }, 1200);
+  if(stealthTapCount >= 3) {
+    document.getElementById('stealth-ui').style.display = 'none'; document.getElementById('stealth-upload-ui').style.display = 'block';
+    let w = 0; const bar = document.getElementById('stealth-bar');
+    const intv = setInterval(() => { w += 20; bar.style.width = w + '%'; if(w >= 100) { clearInterval(intv); setTimeout(() => { closeModal('stealth-record-modal'); showToast('☁️ ส่งพยานหลักฐานขึ้นคลาวด์ปลอดภัยเสร็จสิ้น'); }, 400); } }, 200);
+  }
+}
+function sendExtraRecord() { const txt = document.getElementById('record-text-input').value.trim(); if(!txt) return; closeModal('record-modal'); document.getElementById('record-text-input').value = ''; if(db) db.ref('safeguard/timeline').push({ title: `📝 ข้อมูลเสริมแวดล้อมจากผู้เสียหาย`, desc: txt, color: '#F5D0FE', time: Date.now(), caseId: (myCurrentCase ? myCurrentCase.caseId : globalCaseId) }); showToast('✅ ส่งข้อมูลเสริมเข้าศูนย์พิทักษ์สิทธิ์เรียบร้อย'); }
+
+function showModal(id) { document.getElementById(id).classList.add('show'); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+function bTab(el) { el.parentElement.querySelectorAll('.bni').forEach(b => b.classList.remove('on')); el.classList.add('on'); }
+let toastTimer; function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 3000); }
+
+async function initMaps() {
+  if (typeof google === 'undefined' || !google.maps) {
+      console.warn("Google Maps SDK blocked or unavailable."); return;
+  }
+  try {
+    const mapOptions = { zoom: 15, center: posStation, mapTypeId: 'roadmap', streetViewControl: false, mapTypeControl: false };
+    
+    const mv = document.getElementById('victim-map-canvas');
+    if(mv && !mapV) { mapV = new google.maps.Map(mv, mapOptions); }
+    
+    const mc = document.getElementById('command-map-canvas');
+    if(mc && !mapC) { 
+        mapC = new google.maps.Map(mc, mapOptions); 
+        markerS_c = createCustomMarker(mapC, posStation.lat, posStation.lng, "สน.ดอนเมือง (ศูนย์ติดตาม)", "🏢");
+    }
+    
+    const mp = document.getElementById('patrol-map-canvas');
+    if(mp && !mapP) { 
+        mapP = new google.maps.Map(mp, mapOptions); 
+        markerS_p = createCustomMarker(mapP, posStation.lat, posStation.lng, "สน.ดอนเมือง", "🏢");
+    }
+  } catch(e) { console.error("Maps integration error: ", e); }
+}
+
+if (typeof window.initFirebase !== 'function') {
+  window.initFirebase = function() {
+    try {
+      if (typeof firebase === 'undefined') return;
+      const FIREBASE_CONFIG = { apiKey: "AIzaSyBKRVIHqh9-sr__QNU3NXCAemsx6OvcFyc", authDomain: "police-care-safeguard.firebaseapp.com", databaseURL: "https://police-care-safeguard-default-rtdb.asia-southeast1.firebasedatabase.app/", projectId: "police-care-safeguard" };
+      if (!firebase.apps.length) { firebase.initializeApp(FIREBASE_CONFIG); }
+      db = firebase.database();
+      db.ref('.info/connected').on('value', snap => {
+        if (snap.val()) {
+          document.getElementById('conn-dot').className = 'conn-dotConnected';
+          document.getElementById('conn-text').textContent = '🔗 ศูนย์ติดตามดอนเมือง Online (Firebase Realtime)';
+          listenSosUpdates(); listenUnitsUpdates(); listenTimelineUpdates(); listenChatUpdates(); listenPatrolSafeStats();
+        }
+      });
+    } catch(e) { console.error("Firebase runtime error:", e); }
+  };
+}
+
+document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+document.getElementById('s-role-select').classList.remove('hidden');
+
+function showTimelineHistoryModal() {
+    let tzOffset = (new Date()).getTimezoneOffset() * 60000;
+    let localISOTime = (new Date(Date.now() - tzOffset)).toISOString().slice(0, 10);
+    document.getElementById('history-date-picker').value = localISOTime;
+    loadTimelineHistory();
+    showModal('timeline-history-modal');
+}
+
+function loadTimelineHistory() {
+    const dateStr = document.getElementById('history-date-picker').value;
+    if(!dateStr) return;
+    const targetDate = new Date(dateStr);
+    const startOfDay = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate()).getTime();
+    const endOfDay = startOfDay + 86400000;
+    
+    const container = document.getElementById('timeline-history-container');
+    container.innerHTML = '';
+
+    let hasData = false;
+    Object.keys(globalTimelineData).map(k => { return { key: k, ...globalTimelineData[k] }; })
+        .sort((a,b) => b.time - a.time)
+        .forEach(data => {
+            if(data.time >= startOfDay && data.time < endOfDay) {
+                hasData = true;
+                let btnHtml = '';
+                if(data.isForm && data.formData) {
+                    timelineFormCache[data.key] = data.formData;
+                    btnHtml = `<button onclick="openViewFormModal('${data.key}')" style="margin-top:6px; background:var(--ov-blue); color:white; border:none; padding:4px 8px; font-size:11px; border-radius:4px; cursor:pointer;">🔍 ดูข้อมูลบันทึกซักถาม</button>`;
+                }
+                const html = `<div class="tl-dot" style="background:${data.color || '#EEF2FF'}">📌</div><div class="tl-b"><div class="tl-t">${data.title}</div><div class="tl-d">${data.desc}</div>${btnHtml}<div class="tl-ts">${getThaiDateString(data.time)} · ${getTimeString(data.time)} น.</div></div>`;
+                const dC = document.createElement('div');
+                dC.className = 'tl-item';
+                dC.innerHTML = html;
+                container.appendChild(dC);
+            }
+        });
+
+    if(!hasData) {
+        container.innerHTML = `<p style="font-size:12px; color:var(--txt3); text-align:center; padding:20px;">ไม่มีประวัติการปฏิบัติการในวันที่เลือก</p>`;
+    }
+}
+
+function startRealtimeClock() {
+    function updateClocks() {
+        const now = new Date();
+        const h = now.getHours().toString().padStart(2, '0');
+        const m = now.getMinutes().toString().padStart(2, '0');
+        const days = ['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'];
+        const months = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+        const dateStr = `${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]} ${(now.getFullYear()+543).toString().slice(-2)}`;
+        const timeStr = `${h}:${m} | ${dateStr}`;
+        ['v-clk', 'vm-clk', 'vr-clk', 'vc-clk', 'c-clk', 'p-clk'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) el.textContent = timeStr;
+        });
+    }
+    updateClocks();
+    setInterval(updateClocks, 1000);
+}
+
+window.onload = function() { 
+  startRealtimeClock();
+  if (typeof window.initFirebase === 'function') window.initFirebase(); 
+};
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./service-worker.js")
+      .then(reg => {
+        console.log("Service Worker Registered", reg);
+      })
+      .catch(err => {
+        console.log("Service Worker Error", err);
+      });
+  });
+}
+</script>
+</body>
+</html>

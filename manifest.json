@@ -1,0 +1,19 @@
+{
+  "name": "One-Voice SafeGuard",
+  "short_name": "SafeGuard",
+  "description": "ระบบรับแจ้งเหตุและป้องกันความรุนแรงภายในครอบครัว",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#003F7A",
+  "theme_color": "#00519B",
+  "icons": [
+    {
+      "src": "One Voice SafeGuard.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
